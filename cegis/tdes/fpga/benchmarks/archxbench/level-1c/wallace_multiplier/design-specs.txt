@@ -1,0 +1,22 @@
+Design Name: wallace_tree_mult  
+Module Name: wallace_tree_mult
+
+Inputs:
+- A[WIDTH-1:0]                   // Operand A
+- B[WIDTH-1:0]                   // Operand B
+
+Outputs:
+- Y[2*WIDTH-1:0]           // Product output
+
+Parameters:
+- WIDTH = 8                    // Operand bit width (default: 8)
+
+Design Signature:
+
+module wallace_tree_mult #(
+    parameter WIDTH = 8
+) (
+    input [WIDTH-1:0] A,
+    input [WIDTH-1:0] B,
+    output [2*WIDTH-1:0] Y
+);

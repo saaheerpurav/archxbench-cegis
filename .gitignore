@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Environment
+.env
+.venv/
+venv/
+
+# API keys and secrets
+.anthropic_key
+.openai_key
+*.pem
+.AWS_BEARER_TOKEN_BEDROCK
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Simulation artifacts
+*.vvp
+*.vcd

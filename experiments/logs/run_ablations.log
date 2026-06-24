@@ -1,0 +1,3 @@
+2026-06-21 08:21:00,826 __main__ INFO Total: 120 cells (120 to run, 0 already done)
+2026-06-21 08:21:00,856 __main__ INFO === Cell: fp_adder / C4i-noStudy / gpt-5.5 / seed=42 ===
+2026-06-21 08:21:00,856 openevolve.tdes.fpga.autonomous.decomposer INFO Decomposition attempt 1/3 (model=gpt-5.5)
