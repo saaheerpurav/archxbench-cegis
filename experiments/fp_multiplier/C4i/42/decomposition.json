@@ -1,0 +1,9 @@
+{
+  "top_source_file": "verilog/fp_multiplier_unpack.v",
+  "sub_modules": {
+    "fp_multiplier_unpack": "Combinational operand decoder that extracts sign, exponent, mantissa, IEEE-754 class information, effective significand, and unbiased exponent.",
+    "fp_multiplier_special_cases": "Combinational special-case handler for NaNs, infinities, zero operands, invalid operations, and testbench-defined exception flags.",
+    "fp_multiplier_significand_product": "Combinational datapath block that multiplies the two significands and adds the unbiased exponents.",
+    "fp_multiplier_normalize_round_pack": "Combinational finite-result stage that detects the leading bit, normalizes, applies rounding mode, detects overflow/flush-to-zero underflow, and packs the final floating-point result."
+  }
+}

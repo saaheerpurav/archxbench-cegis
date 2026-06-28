@@ -1,0 +1,10 @@
+{
+  "top_source_file": "verilog/harris_sobel3x3.v",
+  "sub_modules": {
+    "harris_sobel3x3": "Purely combinational 3x3 Sobel gradient operator producing signed Ix and Iy.",
+    "harris_gradient_products": "Purely combinational gradient-product stage computing Ix squared, Iy squared, and Ix times Iy.",
+    "harris_gaussian3x3": "Purely combinational 3x3 Gaussian smoothing filter with kernel [1 2 1; 2 4 2; 1 2 1] divided by 16.",
+    "harris_response": "Purely combinational fixed-point Harris response calculator using det(M) minus k times trace(M)^2.",
+    "harris_threshold": "Purely combinational pointwise threshold decision stage producing the binary corner flag."
+  }
+}

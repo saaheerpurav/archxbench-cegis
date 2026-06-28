@@ -1,0 +1,9 @@
+{
+  "error": "Decomposition failed after 3 attempts: Could not find top module. Wrap it in <file name=\"X.v\" type=\"top\">...</file>",
+  "design": "dct_idct_8pt_pipelined",
+  "model": "gpt-5.5",
+  "seed": 42,
+  "wall_seconds": 478.3,
+  "total_input_tokens": 7746,
+  "total_output_tokens": 36000
+}

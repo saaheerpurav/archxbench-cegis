@@ -1,0 +1,9 @@
+{
+  "top_source_file": "verilog/fp_unpack.v",
+  "sub_modules": {
+    "fp_unpack": "Extracts sign, exponent, fraction, effective exponent, hidden-bit significand, and operand classification flags.",
+    "fp_special_cases": "Handles NaN, infinity, and zero special cases, including invalid-operation and signed-zero behavior by rounding mode.",
+    "fp_align_add_norm": "Aligns significands, performs signed-magnitude addition or subtraction, detects cancellation, and normalizes the unrounded result with guard/round/sticky bits.",
+    "fp_round_pack": "Applies the selected rounding mode, detects overflow/underflow conditions required by the tests, and packs the final floating-point result."
+  }
+}

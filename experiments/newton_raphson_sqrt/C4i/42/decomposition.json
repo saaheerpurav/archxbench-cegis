@@ -1,0 +1,9 @@
+{
+  "top_source_file": "verilog/sqrt_nr_initial_guess.v",
+  "sub_modules": {
+    "sqrt_nr_initial_guess": "Combinational fixed-point initial estimate generator. It detects zero input and selects either 1.0 in Q format for sub-unity inputs or X itself for inputs greater than or equal to 1.0.",
+    "sqrt_nr_divide": "Combinational fixed-point divider implementing X/y with proper Q-format scaling by computing (X << M) / y using extended precision and output saturation.",
+    "sqrt_nr_update": "Combinational Newton-Raphson update block computing next_y = (current_y + quotient) / 2.",
+    "sqrt_nr_convergence": "Combinational convergence detector comparing current and next estimates and asserting convergence when their absolute difference is less than or equal to one fixed-point LSB."
+  }
+}

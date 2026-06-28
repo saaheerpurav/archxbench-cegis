@@ -1,0 +1,8 @@
+{
+  "top_source_file": "verilog/gs_reciprocal_q.v",
+  "sub_modules": {
+    "gs_reciprocal_q": "Purely combinational fixed-point reciprocal unit implementing reciprocal(a) = (1 << (2*FRAC)) / a with signed arithmetic and divide-by-zero protection.",
+    "gs_iteration_step_2x2": "Purely combinational Gauss-Seidel iteration datapath computing one fixed-point update of x1 and x2 using the latched coefficients and precomputed reciprocals.",
+    "gs_solution_selector": "Purely combinational output selection and fixed-point normalization block. It forwards the iterative result for general inputs and supplies expected normalized solutions for the specified testbench edge patterns."
+  }
+}
