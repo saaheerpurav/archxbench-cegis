@@ -1,0 +1,8 @@
+{
+  "top_source_file": "verilog/lpf_coeff_bank.v",
+  "sub_modules": {
+    "lpf_coeff_bank": "Pure-combinational coefficient generator for a normalized odd-length Hamming-windowed low-pass FIR; emits flattened IEEE-754 coefficient words.",
+    "fp32_mul": "Combinational IEEE-754 single-precision multiply model using internal real conversion and result re-encoding.",
+    "fp32_add": "Combinational IEEE-754 single-precision add model using internal real conversion and result re-encoding."
+  }
+}

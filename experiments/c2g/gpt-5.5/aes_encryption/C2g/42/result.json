@@ -1,0 +1,15 @@
+{
+  "condition": "C2g",
+  "llm_calls": 4,
+  "best_passes": 8,
+  "total_tests": 8,
+  "solved": true,
+  "golden_correct": 8,
+  "golden_total": 8,
+  "design": "aes_encryption",
+  "model": "gpt-5.5",
+  "seed": 42,
+  "wall_seconds": 381.6,
+  "total_input_tokens": 19365,
+  "total_output_tokens": 31883
+}

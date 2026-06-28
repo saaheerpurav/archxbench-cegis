@@ -1,0 +1,10 @@
+{
+  "top_source_file": "verilog/harris_sobel3x3.v",
+  "sub_modules": {
+    "harris_sobel3x3": "Pure combinational 3x3 Sobel gradient stencil producing signed X and Y gradients.",
+    "harris_grad_products": "Pure combinational pointwise gradient product unit computing Ix squared, Iy squared, and IxIy.",
+    "harris_gaussian3x3": "Pure combinational 3x3 Gaussian smoothing stencil with weights 1-2-1 / 2-4-2 / 1-2-1 normalized by 16.",
+    "harris_response": "Pure combinational Harris response arithmetic computing det(M) minus fixed-point k times trace(M)^2 with saturation to response width.",
+    "harris_threshold": "Pure combinational threshold decision logic generating the binary corner flag."
+  }
+}

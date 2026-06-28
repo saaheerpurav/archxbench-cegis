@@ -1,0 +1,8 @@
+{
+  "top_source_file": "verilog/conv1d_tap_products.v",
+  "sub_modules": {
+    "conv1d_tap_products": "Purely combinational hardcoded 5-tap coefficient multiplier stage for kernel [2, 8, 12, 8, 2].",
+    "conv1d_mac5": "Purely combinational five-input adder that forms the full-width multiply-accumulate sum.",
+    "conv1d_normalize": "Purely combinational normalization stage that right-shifts the MAC result by GAIN_W and truncates to the output width."
+  }
+}

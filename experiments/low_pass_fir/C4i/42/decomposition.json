@@ -1,0 +1,11 @@
+{
+  "top_source_file": "verilog/fir_tap_shift_next.v",
+  "sub_modules": {
+    "fir_tap_shift_next": "Combinational next-state generator for the FIR sample delay line; inserts the newest sample and shifts older taps.",
+    "fir_sym_preadd": "Combinational symmetric-tap pre-adder for the 101-tap linear-phase FIR, producing 50 mirrored sample sums plus the center sample.",
+    "fir_coeff_rom_101": "Combinational hard-coded ROM containing the exact required 101-tap coefficient set, exposed as 50 symmetric pair coefficients plus the center coefficient.",
+    "fir_product_bank": "Combinational multiplier bank for all symmetric pre-add sums and the center tap.",
+    "fir_accumulator_tree": "Combinational wide signed accumulator that sums all tap products into a 64-bit MAC result.",
+    "fir_output_scale": "Combinational fixed-point output scaler using arithmetic right shift by 15 and truncation to DATA_W+GAIN_W bits."
+  }
+}

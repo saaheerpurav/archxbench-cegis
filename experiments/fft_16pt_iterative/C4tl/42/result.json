@@ -1,0 +1,25 @@
+{
+  "condition": "C4tl",
+  "llm_calls": 29,
+  "best_passes": 0,
+  "total_tests": 1,
+  "solved": false,
+  "decomp_modules": [
+    "fft16_bit_reverse_loader",
+    "fft16_addr_gen",
+    "fft16_twiddle_rom",
+    "fft16_butterfly",
+    "fft16_output_scale"
+  ],
+  "ref_passes": 33,
+  "ref_total": 33,
+  "golden_correct": 0,
+  "golden_total": 1,
+  "module_solve_rounds": {},
+  "design": "fft_16pt_iterative",
+  "model": "gpt-5.5",
+  "seed": 42,
+  "wall_seconds": 1615.4,
+  "total_input_tokens": 93330,
+  "total_output_tokens": 114553
+}

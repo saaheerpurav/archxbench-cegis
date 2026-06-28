@@ -1,0 +1,9 @@
+{
+  "top_source_file": "verilog/dct8_coeff_rom.v",
+  "sub_modules": {
+    "dct8_coeff_rom": "Combinational Q2.14 orthonormal 8-point DCT coefficient ROM. In DCT mode it emits C[k][n]; in IDCT mode it emits the transposed coefficient C[k][n] as C[input_frequency][output_sample].",
+    "dct8_product": "Combinational signed fixed-point multiplier for one sample and one cosine coefficient.",
+    "dct8_sum8": "Combinational sign-extending eight-input adder tree for accumulating the matrix-vector dot product.",
+    "dct8_quantize_saturate": "Combinational fixed-point rounding, right-shift scaling by the coefficient fractional width, and signed saturation to OUT_W."
+  }
+}

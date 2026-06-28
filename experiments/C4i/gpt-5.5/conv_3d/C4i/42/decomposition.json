@@ -1,0 +1,10 @@
+{
+  "top_source_file": "verilog/conv3d_coord_update_comb.v",
+  "sub_modules": {
+    "conv3d_coord_update_comb": "Pure-combinational coordinate sequencer for x/y/z raster-scan position updates and end-of-volume detection.",
+    "conv3d_valid_region_comb": "Pure-combinational valid-padding region detector for stride-1 valid 3D convolution windows.",
+    "conv3d_kernel_activity_comb": "Pure-combinational reduction logic that detects whether any flattened kernel coefficient is nonzero.",
+    "conv3d_window_formatter_comb": "Pure-combinational flattened window formatter used as the lightweight window-generation interface between buffering/control and MAC logic.",
+    "conv3d_mac_array_comb": "Pure-combinational multiply-accumulate array over the flattened 3D window and flattened kernel, with output truncation to the requested interface width."
+  }
+}

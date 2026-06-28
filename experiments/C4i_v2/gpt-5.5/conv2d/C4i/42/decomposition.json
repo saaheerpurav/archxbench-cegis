@@ -1,0 +1,10 @@
+{
+  "top_source_file": "verilog/conv2d_coord_gen.v",
+  "sub_modules": {
+    "conv2d_coord_gen": "Combinational raster coordinate and centered-window output-coordinate generator. Computes input row/column, delayed output row/column, and window-valid based on kernel radius and image width.",
+    "conv2d_linebuf_read": "Combinational read mux for the circular line-buffer storage held in the top module. Extracts the KxK raw stencil window and bypasses the current input pixel when the window references the just-arriving sample.",
+    "conv2d_window_pad": "Combinational zero-padding stage for top, left, and right image borders. Invalid stencil locations are forced to zero before convolution.",
+    "conv2d_coeff_rom": "Combinational coefficient source. Provides default separable binomial/Gaussian-style coefficients for 3x3, 5x5, and 7x7 kernels; 3x3 defaults to [[1,2,1],[2,4,2],[1,2,1]].",
+    "conv2d_dot_product": "Combinational matrix-vector dot-product datapath. Multiplies flattened window pixels by flattened signed coefficients, accumulates in a widened signed accumulator, and clamps to the output width."
+  }
+}

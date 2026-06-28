@@ -1,0 +1,9 @@
+{
+  "error": "Icarus Verilog (iverilog/vvp) not found on PATH. Install the OSS CAD Suite or set iverilog_path/vvp_path.",
+  "design": "band_pass_fir",
+  "model": "gpt-5.5",
+  "seed": 42,
+  "wall_seconds": 92.6,
+  "total_input_tokens": 28963,
+  "total_output_tokens": 7550
+}

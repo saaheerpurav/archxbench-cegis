@@ -1,0 +1,23 @@
+{
+  "condition": "C4tl",
+  "llm_calls": 29,
+  "best_passes": 0,
+  "total_tests": 0,
+  "solved": false,
+  "decomp_modules": [
+    "qgemm_quantize_matrix",
+    "qgemm_int_gemm",
+    "qgemm_dequantize_matrix"
+  ],
+  "ref_passes": 0,
+  "ref_total": 0,
+  "golden_correct": 0,
+  "golden_total": 8,
+  "module_solve_rounds": {},
+  "design": "quantized_matmul",
+  "model": "gpt-5.5",
+  "seed": 42,
+  "wall_seconds": 1279.7,
+  "total_input_tokens": 100408,
+  "total_output_tokens": 102092
+}

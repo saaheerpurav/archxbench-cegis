@@ -1,0 +1,25 @@
+{
+  "condition": "C4i",
+  "llm_calls": 4,
+  "best_passes": 0,
+  "total_tests": 1,
+  "solved": false,
+  "decomp_modules": [
+    "fp32_zero_mux",
+    "fp32_mul",
+    "fp32_add"
+  ],
+  "module_solve_rounds": {
+    "fp32_zero_mux": 1,
+    "fp32_mul": 1,
+    "fp32_add": 1
+  },
+  "golden_correct": 0,
+  "golden_total": 1,
+  "design": "fp_high_pass_fir",
+  "model": "gpt-5.5",
+  "seed": 42,
+  "wall_seconds": 397.4,
+  "total_input_tokens": 12022,
+  "total_output_tokens": 22250
+}

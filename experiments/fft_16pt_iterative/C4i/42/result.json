@@ -1,0 +1,21 @@
+{
+  "condition": "C4i",
+  "solved": false,
+  "llm_calls": 29,
+  "error": "final compile failed",
+  "decomp_modules": [
+    "fft16_index_gen",
+    "fft16_twiddle_rom",
+    "fft16_butterfly",
+    "fft16_output_scale"
+  ],
+  "module_solve_rounds": {},
+  "golden_correct": 0,
+  "golden_total": 0,
+  "design": "fft_16pt_iterative",
+  "model": "gpt-5.5",
+  "seed": 42,
+  "wall_seconds": 1328.1,
+  "total_input_tokens": 383291,
+  "total_output_tokens": 89443
+}

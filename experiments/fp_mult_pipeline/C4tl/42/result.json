@@ -1,0 +1,26 @@
+{
+  "condition": "C4tl",
+  "llm_calls": 7,
+  "best_passes": 31,
+  "total_tests": 31,
+  "solved": true,
+  "decomp_modules": [
+    "fp_unpack",
+    "fp_special_cases",
+    "fp_mul_exp",
+    "fp_normalize",
+    "fp_round_nearest_even",
+    "fp_pack_result"
+  ],
+  "ref_passes": 31,
+  "ref_total": 31,
+  "golden_correct": 0,
+  "golden_total": 0,
+  "module_solve_rounds": {},
+  "design": "fp_mult_pipeline",
+  "model": "gpt-5.5",
+  "seed": 42,
+  "wall_seconds": 299.1,
+  "total_input_tokens": 15661,
+  "total_output_tokens": 20903
+}

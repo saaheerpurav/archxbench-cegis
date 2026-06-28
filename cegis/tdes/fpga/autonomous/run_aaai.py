@@ -1,31 +1,17 @@
-"""AAAI experiment runner: autonomous decompose-test-evolve across all L4 designs.
+"""AAAI experiment runner: autonomous LLM-driven CEGIS across ArchXBench L2-L6.
 
-5 Conditions (30 LLM calls each to control budget):
-  C1: zero_shot_pass5      — 5 independent monolithic generations, pick best
-  C2: single_agent_mono    — iterative CEGIS on monolithic design, 30 rounds
-  C3: decompose_generate   — auto-decompose, one-shot generate per sub-module
-  C4: decompose_single     — auto-decompose, iterative per-module CEGIS, ~30 calls
-  C5: decompose_tdes       — auto-decompose, auto-test, full TDES evolution
+Conditions:
+  C1:  Zero-shot Pass@5 — 5 independent generations, pick best
+  C2g: Monolithic CEGIS with golden feedback — 30 rounds, multi-turn
+  C4i: Investigative CEGIS — decompose + study-diagnose-fix loop per sub-module
+  C4tl: Trace-Lifted CEGIS — decompose + fault localization via reference-gating
+  C2:  Legacy monolithic CEGIS (no golden feedback)
+  C4:  Legacy decompose + stateless CEGIS
 
-Usage (from WSL):
-    # Anthropic models (Claude)
-    export ANTHROPIC_API_KEY=$(tr -d '[:space:]' < $ANTHROPIC_API_KEY)
-    # OpenAI models (GPT-4o, o3-mini, etc.) — optional, auto-loaded from .openai_key
-    export OPENAI_API_KEY=$(tr -d '[:space:]' < $OPENAI_API_KEY)
-
-    # cd to repo root
-
-    # Anthropic (original)
-    python -m cegis.tdes.fpga.autonomous.run_aaai \
-        --designs fp_mult_pipeline --conditions C4 --seeds 42 --models claude-sonnet-4-6
-
-    # OpenAI
-    python -m cegis.tdes.fpga.autonomous.run_aaai \
-        --designs fp_mult_pipeline --conditions C4 --seeds 42 --models gpt-4o
-
-    # Full experiment
-    python -m cegis.tdes.fpga.autonomous.run_aaai \
-        --designs all --conditions all --models claude-sonnet-4-6 gpt-4o --seeds 42 123 456 --output tdes_aaai_results
+Usage:
+    python -m cegis.tdes.fpga.autonomous.run_aaai \\
+        --conditions C4i C4tl --models gpt-5.5 --seeds 42 123 456 \\
+        --designs L2 L3 L4 L5 L6 --parallel 3 --output runs/
 """
 
 from __future__ import annotations
@@ -96,7 +82,7 @@ _LEVEL_DESIGNS = {
     "L6": [
         "aes_decryption", "aes_encryption", "conv_3d",
         "fft_streaming_64pt", "fp_band_pass_fir", "fp_high_pass_fir",
-        "fp_low_pass_fir", "multich_conv2d", "quantized_matmul",
+        "fp_low_pass_fir", "quantized_matmul",
     ],
 }
 
@@ -111,6 +97,34 @@ _LEVEL_DIRS = {
 ALL_DESIGNS = _LEVEL_DESIGNS["L4"]  # backwards compat
 
 ALL_CONDITIONS = ["C1", "C2", "C2g", "C3", "C4", "C4i", "C4i-noStudy", "C4i-stateless", "C4i-rawFail", "C4i-noRef", "C4tl", "C5"]
+
+# Priority design lists for budget-constrained runs
+_PRIORITY_DESIGNS = {
+    "P1": [
+        "cla_32bit_pipe", "rca_32bit_pipe", "aes128_single_round",
+        "fp_adder", "fp_multiplier", "newton_raphson_sqrt",
+        "fp_mult_pipeline", "fp_adder_pipeline",
+        "conv1d", "conv2d", "harris_corner_detection", "unsharp_mask",
+        "aes_decryption", "aes_encryption", "fft_streaming_64pt",
+    ],
+    "P2": [
+        "gauss_siedel", "newton_raphson_polynomial",
+        "fft_16pt_iterative", "dct_idct_8pt_pipelined",
+    ],
+}
+_PRIORITY_DESIGNS["P1P2"] = _PRIORITY_DESIGNS["P1"] + _PRIORITY_DESIGNS["P2"]
+
+_MODEL_PRICING = {
+    "gpt-5.5":  {"input": 5.0, "output": 30.0},
+    "gpt-5.4":  {"input": 2.0, "output": 8.0},
+    "gpt-4o":   {"input": 2.5, "output": 10.0},
+    "openai.gpt-oss-120b": {"input": 2.0, "output": 8.0},
+}
+
+
+def _estimate_cost(model: str, input_tokens: int, output_tokens: int) -> float:
+    pricing = _MODEL_PRICING.get(model, {"input": 0.0, "output": 0.0})
+    return (input_tokens * pricing["input"] + output_tokens * pricing["output"]) / 1_000_000
 
 def _prepare_data_dir(design_dir: str) -> Optional[str]:
     """Return design_dir if it contains inputs/ or outputs/ subdirectories."""
@@ -800,6 +814,7 @@ def run_C4(
             "condition": "C4", "solved": False, "llm_calls": total_calls,
             "error": "final compile failed",
             "decomp_modules": decomp.module_names,
+            "golden_correct": 0, "golden_total": 0,
             **_artifacts,
         }
 
@@ -985,18 +1000,39 @@ def run_C4i(
                     test_modules[other.name] = modules[other.name]
 
             sim = simulate(test_modules, testbench, timeout=60, data_dir=data_dir)
+            golden_feedback = ""
             if sim.compiled:
                 p, t = _count_tb_passes(sim.stdout)
                 if p > best_passes:
                     best_passes, best_total = p, t
                 if p == t and t > 0:
-                    module_solve_rounds[sub.name] = rnd + 1
-                    logger.info("C4i %s solved at round %d (%d/%d)", sub.name, rnd + 1, p, t)
-                    break
+                    if data_dir:
+                        gp, gt, gdetail = _simulate_golden(
+                            test_modules, testbench, data_dir)
+                        if gt > 0 and gp == gt:
+                            module_solve_rounds[sub.name] = rnd + 1
+                            logger.info("C4i %s GOLDEN VERIFIED round %d (%d/%d)",
+                                        sub.name, rnd + 1, gp, gt)
+                            break
+                        elif gt > 0:
+                            logger.info("C4i %s round %d: TB PASS but golden %d/%d",
+                                        sub.name, rnd + 1, gp, gt)
+                            p, t = gp, gt
+                            golden_feedback = (
+                                f"\n\n## Golden Output Comparison ({gp}/{gt} correct)\n\n"
+                                f"The testbench says PASS but output does NOT match golden reference.\n"
+                                f"```\n{gdetail}\n```\n"
+                            )
+                    else:
+                        module_solve_rounds[sub.name] = rnd + 1
+                        logger.info("C4i %s solved at round %d (%d/%d)", sub.name, rnd + 1, p, t)
+                        break
             else:
                 p, t = 0, 0
 
             fix_prompt = build_fix(sub, current_source, sim, p, t, design_specs)
+            if golden_feedback:
+                fix_prompt += golden_feedback
 
             if not multi_turn:
                 conversation = []
@@ -1029,6 +1065,7 @@ def run_C4i(
             "error": "final compile failed",
             "decomp_modules": decomp.module_names,
             "module_solve_rounds": module_solve_rounds,
+            "golden_correct": 0, "golden_total": 0,
             "_sources": dict(modules),
             "_decomp_descriptions": {s.name: s.description for s in decomp.sub_modules},
             "_top_source": decomp.top_source,
@@ -1342,6 +1379,7 @@ def run_C4tl(
             "decomp_modules": decomp.module_names,
             "ref_passes": ref_passes, "ref_total": ref_total,
             "module_solve_rounds": module_solve_rounds,
+            "golden_correct": 0, "golden_total": 0,
             **_artifacts,
         }
 
@@ -1429,9 +1467,12 @@ def run_C5(
 
     solved = False
     best_passes, total_tests = 0, 0
+    gc, gt = 0, 0
     if sim.compiled:
         best_passes, total_tests = _count_tb_passes(sim.stdout)
         solved = total_tests > 0 and best_passes == total_tests
+        best_passes, total_tests, solved, gc, gt = _golden_verify_final(
+            final_modules, testbench, data_dir, best_passes, total_tests, solved)
 
     setup_calls = 1 + len(tests)
     return {
@@ -1442,6 +1483,7 @@ def run_C5(
         "tests_pass_ref": pass_count,
         "best_passes": best_passes,
         "total_tests": total_tests,
+        "golden_correct": gc, "golden_total": gt,
         "evolution_gens": tdes_result.generations_run if tdes_result else 0,
         "llm_calls": setup_calls + counting.calls,
     }
@@ -1546,6 +1588,8 @@ def main():
     parser.add_argument("--output", default="tdes_aaai_results")
     parser.add_argument("--parallel", type=int, default=4,
                         help="Max concurrent cells (0 = sequential)")
+    parser.add_argument("--budget-usd", type=float, default=0,
+                        help="Max USD to spend (0 = unlimited). Tracks per-model token costs and stops when exceeded.")
     args = parser.parse_args()
 
     logging.basicConfig(
@@ -1579,11 +1623,13 @@ def main():
         print("ERROR: No API key found. Set ANTHROPIC_API_KEY / OPENAI_API_KEY or place keys in .anthropic_key / .openai_key")
         sys.exit(1)
 
-    # Expand level shorthands and "all"
+    # Expand level shorthands, priority shorthands, and "all"
     expanded_designs = []
     for d in args.designs:
         if d.upper() in _LEVEL_DESIGNS:
             expanded_designs.extend(_LEVEL_DESIGNS[d.upper()])
+        elif d.upper() in _PRIORITY_DESIGNS:
+            expanded_designs.extend(_PRIORITY_DESIGNS[d.upper()])
         elif d == "all":
             for level_designs in _LEVEL_DESIGNS.values():
                 expanded_designs.extend(level_designs)
@@ -1617,43 +1663,73 @@ def main():
         return
 
     done = skipped
+    total_cost = 0.0
+    budget_exceeded = False
 
     def _run_and_save(item):
-        nonlocal done
+        nonlocal done, total_cost, budget_exceeded
+        if budget_exceeded:
+            return None, None
         design, condition, model, seed, key = item
         result = run_cell(design, condition, model, seed, anthropic_key, openai_key, args.output)
         with _metrics_lock:
             metrics[key] = result
             _save_metrics(metrics_path, metrics)
             done += 1
-            logger.info("Progress: %d/%d cells (%.0f%%) — %s: %s (%s/%s)",
+            cell_cost = _estimate_cost(
+                model,
+                result.get("total_input_tokens", 0),
+                result.get("total_output_tokens", 0),
+            )
+            total_cost += cell_cost
+            cost_str = f"${cell_cost:.2f} (total: ${total_cost:.2f})"
+            if args.budget_usd > 0:
+                cost_str += f" / ${args.budget_usd:.0f}"
+            logger.info("Progress: %d/%d cells (%.0f%%) — %s: %s (%s/%s) — %s",
                         done, total_cells, 100 * done / total_cells,
                         key, "SOLVED" if result.get("solved") else "FAILED",
-                        result.get("best_passes", "?"), result.get("total_tests", "?"))
+                        result.get("best_passes", "?"), result.get("total_tests", "?"),
+                        cost_str)
+            if args.budget_usd > 0 and total_cost >= args.budget_usd:
+                logger.warning("BUDGET EXCEEDED: $%.2f >= $%.0f — stopping after this cell",
+                               total_cost, args.budget_usd)
+                budget_exceeded = True
         return key, result
 
     max_workers = max(1, args.parallel) if args.parallel else 1
 
     if max_workers == 1:
         for item in work:
+            if budget_exceeded:
+                logger.info("Budget exceeded — skipping remaining %d cells",
+                            len(work) - done + skipped)
+                break
             _run_and_save(item)
     else:
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            futures = {executor.submit(_run_and_save, item): item for item in work}
+            futures = {}
+            for item in work:
+                if budget_exceeded:
+                    break
+                futures[executor.submit(_run_and_save, item)] = item
             for future in as_completed(futures):
                 try:
                     future.result()
                 except Exception as e:
                     item = futures[future]
                     logger.error("Cell %s crashed: %s", item[4], e)
+                if budget_exceeded:
+                    for f in futures:
+                        f.cancel()
+                    break
 
     # Summary
     print("\n" + "=" * 70)
-    print("EXPERIMENT COMPLETE")
+    print("EXPERIMENT COMPLETE" + (" (BUDGET EXCEEDED)" if budget_exceeded else ""))
     print("=" * 70)
     solved_count = sum(1 for v in metrics.values() if v.get("solved"))
     total = len(metrics)
-    print(f"Cells: {total}, Solved: {solved_count}/{total}")
+    print(f"Cells: {total}, Solved: {solved_count}/{total}, Cost: ${total_cost:.2f}")
     for key, val in sorted(metrics.items()):
         status = "SOLVED" if val.get("solved") else "FAILED"
         p = val.get("best_passes", "?")

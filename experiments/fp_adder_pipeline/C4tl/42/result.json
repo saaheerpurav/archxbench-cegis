@@ -1,0 +1,25 @@
+{
+  "condition": "C4tl",
+  "llm_calls": 6,
+  "best_passes": 23,
+  "total_tests": 23,
+  "solved": true,
+  "decomp_modules": [
+    "fp_add_unpack",
+    "fp_add_align",
+    "fp_add_core",
+    "fp_add_normalize",
+    "fp_add_round_pack"
+  ],
+  "ref_passes": 23,
+  "ref_total": 23,
+  "golden_correct": 0,
+  "golden_total": 0,
+  "module_solve_rounds": {},
+  "design": "fp_adder_pipeline",
+  "model": "gpt-5.5",
+  "seed": 42,
+  "wall_seconds": 374.4,
+  "total_input_tokens": 15749,
+  "total_output_tokens": 26066
+}

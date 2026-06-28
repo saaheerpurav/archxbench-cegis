@@ -1,0 +1,24 @@
+{
+  "condition": "C4tl",
+  "solved": false,
+  "llm_calls": 29,
+  "error": "final compile failed",
+  "decomp_modules": [
+    "harris_sobel3x3",
+    "harris_grad_products",
+    "harris_gaussian3x3",
+    "harris_response",
+    "harris_threshold"
+  ],
+  "ref_passes": 1,
+  "ref_total": 1,
+  "module_solve_rounds": {},
+  "golden_correct": 0,
+  "golden_total": 0,
+  "design": "harris_corner_detection",
+  "model": "gpt-5.5",
+  "seed": 42,
+  "wall_seconds": 1279.0,
+  "total_input_tokens": 60532,
+  "total_output_tokens": 87594
+}

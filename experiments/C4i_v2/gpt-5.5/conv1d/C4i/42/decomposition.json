@@ -1,0 +1,9 @@
+{
+  "top_source_file": "verilog/conv1d_window5.v",
+  "sub_modules": {
+    "conv1d_window5": "Combinational tap-window mapper that exposes the current input sample and four delayed samples as the five causal FIR taps.",
+    "conv1d_mult5_fixed": "Combinational fixed-coefficient multiplier block implementing hardcoded kernel weights [2, 8, 12, 8, 2].",
+    "conv1d_mac5": "Combinational five-input adder tree that accumulates the weighted tap products into the MAC sum.",
+    "conv1d_gain_shift": "Combinational normalization block that right-shifts the MAC sum by GAIN_W to produce the extended-width filtered output."
+  }
+}

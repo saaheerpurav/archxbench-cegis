@@ -1,0 +1,10 @@
+{
+  "top_source_file": "verilog/ifft16_bitrev_index.v",
+  "sub_modules": {
+    "ifft16_bitrev_index": "Combinational bit-reversal mapper used during the DIT input load phase.",
+    "ifft16_stage_addr_gen": "Combinational radix-2 stage address and twiddle-index generator with loop-end flags.",
+    "ifft16_twiddle_rom": "Combinational Q1.15 twiddle coefficient lookup table for N=16; mode selects FFT negative sine or IFFT positive sine.",
+    "ifft16_butterfly": "Combinational fixed-point complex radix-2 butterfly with rounded Q1.15 twiddle multiplication.",
+    "ifft16_output_scaler": "Combinational final output scaler; divides by 16 in IFFT mode and passes through in FFT mode."
+  }
+}

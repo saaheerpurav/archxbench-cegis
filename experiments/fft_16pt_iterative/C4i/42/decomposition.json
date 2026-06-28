@@ -1,0 +1,9 @@
+{
+  "top_source_file": "verilog/fft16_index_gen.v",
+  "sub_modules": {
+    "fft16_index_gen": "Combinational radix-2 DIT address generator. Converts the current stage and butterfly counter into in-place memory indices p/q and the corresponding twiddle index.",
+    "fft16_twiddle_rom": "Combinational Q1.15 twiddle coefficient ROM for N=16 using the exact cos/sin table specified.",
+    "fft16_butterfly": "Combinational fixed-point complex radix-2 butterfly. Reuses one multiplier set for FFT and IFFT modes by selecting the sign of the sine term.",
+    "fft16_output_scale": "Combinational output normalization block. Passes FFT results unchanged and divides IFFT results by N using an arithmetic right shift."
+  }
+}

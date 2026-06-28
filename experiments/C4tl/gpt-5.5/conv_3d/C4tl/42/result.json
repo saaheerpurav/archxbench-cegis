@@ -1,0 +1,24 @@
+{
+  "condition": "C4tl",
+  "llm_calls": 29,
+  "best_passes": 0,
+  "total_tests": 0,
+  "solved": false,
+  "decomp_modules": [
+    "conv3d_coord_next",
+    "conv3d_valid_region",
+    "conv3d_tap_addr",
+    "conv3d_mac_tree"
+  ],
+  "ref_passes": 0,
+  "ref_total": 0,
+  "golden_correct": 0,
+  "golden_total": 23064,
+  "module_solve_rounds": {},
+  "design": "conv_3d",
+  "model": "gpt-5.5",
+  "seed": 42,
+  "wall_seconds": 2642.3,
+  "total_input_tokens": 55661,
+  "total_output_tokens": 79389
+}

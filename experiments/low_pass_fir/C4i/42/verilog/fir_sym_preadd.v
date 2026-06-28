@@ -1,0 +1,1 @@
+taps_in[i] + taps_in[100-i]

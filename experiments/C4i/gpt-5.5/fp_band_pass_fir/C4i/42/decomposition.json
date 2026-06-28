@@ -1,0 +1,8 @@
+{
+  "top_source_file": "verilog/fp_fir_sample_window_comb.v",
+  "sub_modules": {
+    "fp_fir_sample_window_comb": "Pure combinational next-window generator for the FIR sample shift register; inserts the new valid sample or +0.0 and shifts older samples.",
+    "fp_fir_tap_products_comb": "Pure combinational tap multiplier bank; multiplies each IEEE-754 single-precision sample by its corresponding coefficient.",
+    "fp_fir_sum_tree_comb": "Pure combinational floating-point accumulator for all tap products, producing the FIR dot-product result."
+  }
+}

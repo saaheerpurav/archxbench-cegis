@@ -1,0 +1,23 @@
+{
+  "condition": "C4i",
+  "llm_calls": 26,
+  "best_passes": 0,
+  "total_tests": 0,
+  "solved": false,
+  "decomp_modules": [
+    "conv3d_coord_update_comb",
+    "conv3d_valid_region_comb",
+    "conv3d_kernel_activity_comb",
+    "conv3d_window_formatter_comb",
+    "conv3d_mac_array_comb"
+  ],
+  "module_solve_rounds": {},
+  "golden_correct": 0,
+  "golden_total": 23064,
+  "design": "conv_3d",
+  "model": "gpt-5.5",
+  "seed": 42,
+  "wall_seconds": 1276.4,
+  "total_input_tokens": 125952,
+  "total_output_tokens": 66359
+}

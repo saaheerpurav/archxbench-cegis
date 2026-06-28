@@ -1,0 +1,97 @@
+{
+  "conv1d__C4tl__gpt-5.5__42": {
+    "condition": "C4tl",
+    "llm_calls": 4,
+    "best_passes": 16,
+    "total_tests": 16,
+    "solved": true,
+    "decomp_modules": [
+      "conv1d_tap_products",
+      "conv1d_mac5",
+      "conv1d_normalize"
+    ],
+    "ref_passes": 1,
+    "ref_total": 1,
+    "golden_correct": 16,
+    "golden_total": 16,
+    "module_solve_rounds": {},
+    "design": "conv1d",
+    "model": "gpt-5.5",
+    "seed": 42,
+    "wall_seconds": 139.9,
+    "total_input_tokens": 8310,
+    "total_output_tokens": 10189
+  },
+  "conv2d__C4tl__gpt-5.5__42": {
+    "condition": "C4tl",
+    "llm_calls": 29,
+    "best_passes": 0,
+    "total_tests": 1,
+    "solved": false,
+    "decomp_modules": [
+      "conv2d_valid_gen",
+      "conv2d_window_pad",
+      "conv2d_coeff_rom",
+      "conv2d_dot_product",
+      "conv2d_output_saturate"
+    ],
+    "ref_passes": 1,
+    "ref_total": 1,
+    "golden_correct": 0,
+    "golden_total": 1,
+    "module_solve_rounds": {},
+    "design": "conv2d",
+    "model": "gpt-5.5",
+    "seed": 42,
+    "wall_seconds": 1667.1,
+    "total_input_tokens": 42597,
+    "total_output_tokens": 81838
+  },
+  "dct_idct_8pt_pipelined__C4tl__gpt-5.5__42": {
+    "condition": "C4tl",
+    "llm_calls": 29,
+    "best_passes": 0,
+    "total_tests": 1,
+    "solved": false,
+    "decomp_modules": [
+      "dct1d_8_sign_extend",
+      "dct1d_8_matrix_core",
+      "dct1d_8_output_mux"
+    ],
+    "ref_passes": 1,
+    "ref_total": 1,
+    "golden_correct": 0,
+    "golden_total": 1,
+    "module_solve_rounds": {},
+    "design": "dct_idct_8pt_pipelined",
+    "model": "gpt-5.5",
+    "seed": 42,
+    "wall_seconds": 866.1,
+    "total_input_tokens": 42173,
+    "total_output_tokens": 55078
+  },
+  "harris_corner_detection__C4tl__gpt-5.5__42": {
+    "condition": "C4tl",
+    "solved": false,
+    "llm_calls": 29,
+    "error": "final compile failed",
+    "decomp_modules": [
+      "harris_sobel3x3",
+      "harris_grad_products",
+      "harris_gaussian3x3",
+      "harris_response",
+      "harris_threshold"
+    ],
+    "ref_passes": 1,
+    "ref_total": 1,
+    "module_solve_rounds": {},
+    "golden_correct": 0,
+    "golden_total": 0,
+    "design": "harris_corner_detection",
+    "model": "gpt-5.5",
+    "seed": 42,
+    "wall_seconds": 1279.0,
+    "total_input_tokens": 60532,
+    "total_output_tokens": 87594
+  }
+}

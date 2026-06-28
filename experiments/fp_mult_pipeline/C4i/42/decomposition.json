@@ -1,0 +1,9 @@
+{
+  "top_source_file": "verilog/fp_mult_unpack.v",
+  "sub_modules": {
+    "fp_mult_unpack": "Combinational IEEE-754 operand unpacker. Extracts sign, exponent, 24-bit significand with hidden bit handling, and zero/infinity/NaN/subnormal flags.",
+    "fp_mult_mul_exp": "Combinational multiplication/exponent stage. Multiplies the two 24-bit significands to a 48-bit product and computes the preliminary biased result exponent with correct effective exponent handling for subnormal inputs.",
+    "fp_mult_norm_round": "Combinational normalization and round-to-nearest-even unit. Normalizes the 48-bit significand product, applies guard/round/sticky rounding, adjusts exponent on normalization or rounding carry, and reports overflow/underflow conditions.",
+    "fp_mult_pack_special": "Combinational final packer. Applies IEEE-754 special-case priority for NaN, invalid zero-times-infinity, infinity, zero, overflow, normal result, and flush-to-zero underflow, then emits the 32-bit single-precision result."
+  }
+}

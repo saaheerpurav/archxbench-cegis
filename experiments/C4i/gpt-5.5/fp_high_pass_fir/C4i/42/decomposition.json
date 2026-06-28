@@ -1,0 +1,8 @@
+{
+  "top_source_file": "verilog/fp32_zero_mux.v",
+  "sub_modules": {
+    "fp32_zero_mux": "Combinational valid-controlled IEEE-754 +0.0 insertion for invalid input cycles.",
+    "fp32_mul": "Combinational IEEE-754 single-precision floating-point multiplier with basic NaN, infinity, zero, normalization, and round-to-nearest-even handling.",
+    "fp32_add": "Combinational IEEE-754 single-precision floating-point adder used to build the FIR adder tree, including alignment, add/subtract, normalization, and round-to-nearest-even handling."
+  }
+}

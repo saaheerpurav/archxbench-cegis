@@ -1,0 +1,8 @@
+{
+  "top_source_file": "verilog/qgemm_quantize_matrix.v",
+  "sub_modules": {
+    "qgemm_quantize_matrix": "Combinational FP32-to-centered-quantized matrix converter. It unpacks the testbench input ordering, converts IEEE-754 FP32 values to real for simulation, applies Q15 scale quantization, saturates to the unsigned quantized range, subtracts zero-point, and emits signed centered integer values.",
+    "qgemm_int_gemm": "Combinational integer GEMM core. It multiplies centered quantized A and B operands and accumulates K products into signed INT32 accumulators for every VLEN by VLEN output element.",
+    "qgemm_dequantize_matrix": "Combinational dequantization block. It converts signed INT32 accumulators back to FP32 using the product of Q15 scale_A and scale_B, packing outputs in the order consumed by the provided testbench."
+  }
+}

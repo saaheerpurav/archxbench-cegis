@@ -1,0 +1,11 @@
+{
+  "top_source_file": "verilog/fp_unpack.v",
+  "sub_modules": {
+    "fp_unpack": "Combinational IEEE-754 single-precision operand unpacker. Extracts sign, exponent, fraction, 24-bit significand, unbiased exponent, and zero/subnormal/infinity/NaN flags.",
+    "fp_special_cases": "Combinational early special-case classifier. Computes result sign and forwarded NaN, infinity, and zero result flags using IEEE-754 priority rules including 0 \u00d7 infinity invalid operation.",
+    "fp_mul_exp": "Combinational datapath stage that multiplies the two 24-bit significands into a 48-bit product and adds the unbiased exponents.",
+    "fp_normalize": "Combinational normalization stage. Locates the product leading bit, normalizes the significand, adjusts the exponent, and generates guard, round, and sticky bits.",
+    "fp_round_nearest_even": "Combinational IEEE round-to-nearest-even stage for the normalized 24-bit significand, including carry-out exponent correction.",
+    "fp_pack_result": "Combinational final packer. Applies special-case priority, overflow to signed infinity, underflow flush to signed zero, and packs the normal IEEE-754 single-precision result."
+  }
+}

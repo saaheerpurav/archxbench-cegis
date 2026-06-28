@@ -30,3 +30,9 @@ Thumbs.db
 # Simulation artifacts
 *.vvp
 *.vcd
+
+# Internal research documents
+research_report.md
+
+# Bedrock credentials
+.env.bedrock

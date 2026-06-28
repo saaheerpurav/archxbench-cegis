@@ -1,0 +1,10 @@
+{
+  "top_source_file": "verilog/conv2d_valid_gen.v",
+  "sub_modules": {
+    "conv2d_valid_gen": "Combinational valid-window generator. It asserts when the incoming raster coordinate has reached the convolution radius in both row and column dimensions.",
+    "conv2d_window_pad": "Combinational zero-padding mask for the sliding stencil window. Invalid top/left border taps are forced to zero.",
+    "conv2d_coeff_rom": "Combinational coefficient source. The default implementation generates binomial Gaussian-style kernels for 3x3, 5x5, and 7x7 configurations.",
+    "conv2d_dot_product": "Combinational matrix-vector dot-product datapath. It multiplies the flattened stencil window by the flattened coefficient matrix and accumulates into an extended signed result.",
+    "conv2d_output_saturate": "Combinational output-width limiter. It clamps negative accumulated values to zero and saturates positive overflow to the output maximum."
+  }
+}

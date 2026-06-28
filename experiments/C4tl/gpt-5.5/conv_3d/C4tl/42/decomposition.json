@@ -1,0 +1,9 @@
+{
+  "top_source_file": "verilog/conv3d_coord_next.v",
+  "sub_modules": {
+    "conv3d_coord_next": "Combinational coordinate incrementer for streaming depth, row, and column traversal; also generates the end-of-volume condition.",
+    "conv3d_valid_region": "Combinational valid-convolution region detector that suppresses boundary outputs until a full K1 x K2 x K3 window is available.",
+    "conv3d_tap_addr": "Combinational per-tap 3D sliding-window address generator for reading previously buffered voxels or selecting the current input voxel.",
+    "conv3d_mac_tree": "Combinational multiply-accumulate reduction over the flattened 3D convolution window and flattened kernel coefficients."
+  }
+}

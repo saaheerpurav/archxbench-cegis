@@ -1,0 +1,8 @@
+{
+  "top_source_file": "verilog/dct1d_8_sign_extend.v",
+  "sub_modules": {
+    "dct1d_8_sign_extend": "Combinational adapter that explicitly interprets the unsigned top-level sample port as a signed fixed-point value.",
+    "dct1d_8_matrix_core": "Combinational 8x8 fixed-point transform matrix. Uses Q2.14 orthonormal DCT coefficients and selects either the DCT matrix or its transpose for IDCT mode.",
+    "dct1d_8_output_mux": "Combinational serializer mux that selects one of the eight stored transform results according to the output index."
+  }
+}
