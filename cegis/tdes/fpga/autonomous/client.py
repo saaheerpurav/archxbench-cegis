@@ -18,6 +18,9 @@ from __future__ import annotations
 
 import logging
 import os
+import shutil
+import subprocess
+import tempfile
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 
@@ -135,6 +138,7 @@ class LLMClient:
         self._use_bedrock = use_bedrock
         self._bedrock_region = bedrock_region
         self._mantle = _is_mantle()
+        self._use_codex_cli = bool(os.environ.get("USE_CODEX_CLI"))
         self._anthropic_client = None
         self._openai_client = None
         self.total_input_tokens = 0
@@ -194,9 +198,60 @@ class LLMClient:
         )
         return _Response(content=[_Content(text=text)], usage=usage)
 
+    def _call_via_codex_cli(self, *, model: str, max_tokens: int, system: str,
+                            messages: List[Dict]) -> _Response:
+        prompt_parts = ["INSTRUCTIONS:\n", system, "\n\n---\n\n"]
+        for msg in messages:
+            role = msg.get("role", "user")
+            content = msg.get("content", "")
+            prompt_parts.append(f"[{role}]\n{content}\n\n")
+        prompt_parts.append(
+            "\nReturn only the requested answer/content. Do not edit files. "
+            "Do not include progress logs or explanations unless requested.\n"
+        )
+        prompt = "".join(prompt_parts)
+
+        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".txt", encoding="utf-8") as out:
+            out_path = out.name
+        try:
+            codex_exe = shutil.which("codex")
+            reasoning_effort = os.environ.get("CODEX_REASONING_EFFORT", "low")
+            cmd = [
+                codex_exe or "codex", "exec",
+                "--ephemeral",
+                "--ignore-rules",
+                "-c", f"model={model}",
+                "-c", f"model_reasoning_effort={reasoning_effort}",
+                "-o", out_path,
+                "-",
+            ]
+            proc = subprocess.run(
+                cmd,
+                input=prompt.encode("utf-8"),
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.PIPE,
+                timeout=int(os.environ.get("CODEX_CLI_TIMEOUT", "900")),
+            )
+            if proc.returncode != 0:
+                err = proc.stderr.decode("utf-8", errors="replace")[:1000]
+                raise RuntimeError(f"codex exec returned rc={proc.returncode}: {err}")
+            with open(out_path, "r", encoding="utf-8", errors="replace") as f:
+                text = f.read().strip()
+        finally:
+            try:
+                os.remove(out_path)
+            except OSError:
+                pass
+        return _Response(content=[_Content(text=text)], usage=_Usage())
+
     def _call(self, *, model: str, max_tokens: int, system: str,
               messages: List[Dict], **kwargs) -> _Response:
-        if self._mantle:
+        if self._use_codex_cli:
+            result = self._call_via_codex_cli(
+                model=model, max_tokens=max_tokens,
+                system=system, messages=messages,
+            )
+        elif self._mantle:
             mantle_id = _mantle_model_id(model)
             result = self._call_via_openai(
                 model=mantle_id, max_tokens=max_tokens,

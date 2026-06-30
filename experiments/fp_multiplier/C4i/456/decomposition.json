@@ -1,0 +1,9 @@
+{
+  "top_source_file": "verilog/fp_unpack.v",
+  "sub_modules": {
+    "fp_unpack": "Extracts sign, exponent, mantissa, significand, unbiased exponent, and operand class bits.",
+    "fp_special_cases": "Handles NaN, infinity, zero, invalid, overflow-style infinity, and testbench underflow-style zero cases.",
+    "fp_multiply_core": "Computes result sign, adds unbiased exponents, and multiplies significands.",
+    "fp_normalize_round": "Normalizes the significand product, applies rounding mode, packs the result, and detects overflow or flush-to-zero underflow."
+  }
+}

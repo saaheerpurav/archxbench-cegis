@@ -1,0 +1,25 @@
+{
+  "condition": "C4i",
+  "llm_calls": 4,
+  "best_passes": 36,
+  "total_tests": 36,
+  "solved": true,
+  "decomp_modules": [
+    "fp_unpack",
+    "fp_special_cases",
+    "fp_add_core"
+  ],
+  "module_solve_rounds": {
+    "fp_unpack": 1,
+    "fp_special_cases": 1,
+    "fp_add_core": 1
+  },
+  "golden_correct": 0,
+  "golden_total": 0,
+  "design": "fp_adder",
+  "model": "gpt-5.5",
+  "seed": 123,
+  "wall_seconds": 269.8,
+  "total_input_tokens": 0,
+  "total_output_tokens": 0
+}

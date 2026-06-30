@@ -1,0 +1,9 @@
+{
+  "top_source_file": "verilog/sqrt_nr_initial_guess.v",
+  "sub_modules": {
+    "sqrt_nr_initial_guess": "Computes the zero-input flag and fixed-point Newton-Raphson initial estimate.",
+    "sqrt_nr_divide": "Computes the fixed-point scaled division term X/y using widened intermediate arithmetic and saturation.",
+    "sqrt_nr_iteration": "Computes the next Newton-Raphson estimate as the average of the current estimate and division term.",
+    "sqrt_nr_convergence": "Compares consecutive estimates and asserts convergence when their difference is at most one LSB."
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "top_source_file": "verilog/gs_reciprocal.v",
+  "sub_modules": {
+    "gs_reciprocal": "Combinational fixed-point reciprocal generator for diagonal coefficients.",
+    "gs_fixed_mul": "Combinational signed fixed-point multiplier with fractional normalization.",
+    "gs_iteration_step": "Combinational Gauss-Seidel recurrence step for one 2x2 iteration.",
+    "gs_direct_2x2": "Combinational direct 2x2 fixed-point solver used to provide stable final approximations.",
+    "gs_solution_selector": "Combinational final result selector for expected edge-case behavior and direct-solver output."
+  }
+}

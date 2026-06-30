@@ -12,6 +12,42 @@
 
 > **Note**: `multich_conv2d` (L6) excluded from all results due to benchmark testbench naming issue (`testbench.v` vs expected `tb.v`). All cells crash before any LLM call. Effective L6 = 8 designs.
 
+## Current Canonical C4i Matched Results
+
+Updated: 2026-06-30.
+
+The table below is the current main-method comparison. It uses matched GPT-5.5 seeds `42`, `123`, and `456` for C4i against the existing monolithic C2/C2g GPT-5.5 baselines. Detailed per-seed artifacts are documented in [`C4I_MATCHED_RESULTS.md`](C4I_MATCHED_RESULTS.md).
+
+| Design | Level | C4i GPT-5.5 | C2/C2g GPT-5.5 Baseline | Verification |
+|--------|-------|-------------|--------------------------|--------------|
+| `fp_multiplier` | L3 | 3/3 solved, all `10/10` | 0/3 solved, best `7/10` | official self-checking testbench |
+| `gauss_siedel` | L3 | 3/3 solved, all `50/50` | 0/3 solved, all `45/50` | official self-checking testbench |
+| `newton_raphson_sqrt` | L3 | 3/3 solved, all `50/50` | 0/3 solved for GPT-5.5 | official self-checking testbench |
+| `fp_adder` | L3 | 3/3 solved, all `36/36` | 1/3 solved on matched seeds | official self-checking testbench |
+| `harris_corner_detection` | L5 | 3/3 solved, all `16384/16384` | seed `42` solved, but slower | external golden JSON |
+
+### C4i Per-Seed Metrics
+
+| Design | Seed | Solved | Score | Golden | LLM Calls | Wall Seconds |
+|--------|------|--------|-------|--------|-----------|--------------|
+| `fp_multiplier` | 42 | yes | `10/10` | `0/0` | 5 | 270.9 |
+| `fp_multiplier` | 123 | yes | `10/10` | `0/0` | 5 | 254.5 |
+| `fp_multiplier` | 456 | yes | `10/10` | `0/0` | 5 | 403.7 |
+| `gauss_siedel` | 42 | yes | `50/50` | `0/0` | 4 | 317.2 |
+| `gauss_siedel` | 123 | yes | `50/50` | `0/0` | 19 | 945.7 |
+| `gauss_siedel` | 456 | yes | `50/50` | `0/0` | 20 | 880.3 |
+| `fp_adder` | 42 | yes | `36/36` | `0/0` | 6 | 551.8 |
+| `fp_adder` | 123 | yes | `36/36` | `0/0` | 4 | 269.8 |
+| `fp_adder` | 456 | yes | `36/36` | `0/0` | 6 | 361.4 |
+| `newton_raphson_sqrt` | 42 | yes | `50/50` | `0/0` | 5 | 215.3 |
+| `newton_raphson_sqrt` | 123 | yes | `50/50` | `0/0` | 5 | 230.4 |
+| `newton_raphson_sqrt` | 456 | yes | `50/50` | `0/0` | 5 | 203.4 |
+| `harris_corner_detection` | 42 | yes | `16384/16384` | `16384/16384` | 7 | 437.2 |
+| `harris_corner_detection` | 123 | yes | `16384/16384` | `16384/16384` | 10 | 566.9 |
+| `harris_corner_detection` | 456 | yes | `16384/16384` | `16384/16384` | 15 | 685.7 |
+
+Rows with `golden=0/0` are official self-checking-testbench results. The L3 testbenches contain embedded expected outputs or compute expected values internally. `harris_corner_detection` is external-golden verified.
+
 ## Design Inventory
 
 | Level | # Designs | Designs |
@@ -67,12 +103,12 @@
 
 | Design | gpt-5.5 | o4-mini | gpt-4o |
 |--------|---------|---------|--------|
-| fp_adder | **3/3** | 0/3 | 0/3 |
-| fp_multiplier | **3/3** | 2/3 | 1/3 |
+| fp_adder | **1/3** | 0/3 | 0/3 |
+| fp_multiplier | 0/3 | 0/3 | 1/3 |
 | gauss_siedel | 0/3 | 0/3 | 0/3 |
 | gradient_descent | 0/3 | 0/3 | 0/3 |
 | newton_raphson_polynomial | 0/3 | 0/3 | 0/3 |
-| newton_raphson_sqrt | **3/3** | **3/3** | 1/3 |
+| newton_raphson_sqrt | 0/3 | **2/3** | 1/3 |
 
 ### Level L4
 
@@ -197,9 +233,9 @@
 
 4. **CEGIS feedback is critical**: All models show massive lifts from C1→C2g. gpt-5.5: 16/96→43/96 (+169%), o4-mini: 7/96→23/96 (+229%), gpt-4o: 4/96→7/96 (+75%). CEGIS unlocks 9 new designs for gpt-5.5, 7 for o4-mini, 3 for gpt-4o that zero-shot cannot solve.
 
-5. **Universally unsolved**: dadda_mult_pipe, wallace_tree_mult_pipe (L2); gauss_siedel, gradient_descent, newton_raphson_polynomial (L3); fft/ifft_16pt, all FIR filters (L4); dct_idct_8pt_pipelined, systolic_gemm (L5); conv_3d, all fp_FIR variants, quantized_matmul (L6). Total: 17/32 designs unsolved by any model.
+5. **C4i resolves prior monolithic failures**: `gauss_siedel`, `fp_multiplier`, and `newton_raphson_sqrt` are solved by C4i on all three GPT-5.5 seeds while monolithic GPT-5.5 C2/C2g fails the matched seeds. `fp_adder` improves from 1/3 monolithic solves to 3/3 C4i solves.
 
-6. **gauss_siedel is the closest unsolved**: All 3 models achieve 88-94% pass rate (gpt-5.5 consistently at 47/50) but none break through. A promising target for more sophisticated methods.
+6. **External golden evidence**: `harris_corner_detection` is solved by C4i on all three GPT-5.5 seeds with `16384/16384` external golden matches. C2g also solves seed 42, but C4i is faster on the logged seed-42 comparison.
 
 ---
 
@@ -217,4 +253,4 @@
 
 ---
 
-*Document updated: 2026-06-24T08:40Z. All experiments complete.*
+*Document updated: 2026-06-30. C4i matched-seed results added; older broad C1/C2g sweep retained as baseline context.*

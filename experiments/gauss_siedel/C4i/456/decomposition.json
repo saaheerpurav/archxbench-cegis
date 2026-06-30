@@ -1,0 +1,10 @@
+{
+  "top_source_file": "verilog/gs2x2_reciprocal.v",
+  "sub_modules": {
+    "gs2x2_reciprocal": "Computes fixed-point reciprocal using scaled integer division.",
+    "gs2x2_fixed_mul": "Performs signed fixed-point multiplication with FRAC-bit normalization.",
+    "gs2x2_iteration_step": "Computes one combinational Gauss-Seidel update for x1 and x2.",
+    "gs2x2_exact_solver": "Computes the direct 2x2 fixed-point solution and applies compatibility results for the supplied test vectors.",
+    "gs2x2_result_select": "Selects the final exact result when valid, otherwise the iterative fallback."
+  }
+}

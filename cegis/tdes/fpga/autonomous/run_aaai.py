@@ -1619,7 +1619,7 @@ def main():
             with open(oai_file) as f:
                 openai_key = f.read().strip()
 
-    if not anthropic_key and not openai_key:
+    if not anthropic_key and not openai_key and not os.environ.get("USE_CODEX_CLI"):
         print("ERROR: No API key found. Set ANTHROPIC_API_KEY / OPENAI_API_KEY or place keys in .anthropic_key / .openai_key")
         sys.exit(1)
 

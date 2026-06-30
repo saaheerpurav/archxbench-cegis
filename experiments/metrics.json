@@ -378,5 +378,274 @@
     "wall_seconds": 551.8,
     "total_input_tokens": 26222,
     "total_output_tokens": 32873
+  },
+  "fp_multiplier__C4i__gpt-5.5__123": {
+    "condition": "C4i",
+    "llm_calls": 5,
+    "best_passes": 10,
+    "total_tests": 10,
+    "solved": true,
+    "decomp_modules": [
+      "fp_unpack_classify",
+      "fp_special_cases",
+      "fp_significand_multiply",
+      "fp_normalize_round_pack"
+    ],
+    "module_solve_rounds": {
+      "fp_unpack_classify": 1,
+      "fp_special_cases": 1,
+      "fp_significand_multiply": 1,
+      "fp_normalize_round_pack": 1
+    },
+    "golden_correct": 0,
+    "golden_total": 0,
+    "design": "fp_multiplier",
+    "model": "gpt-5.5",
+    "seed": 123,
+    "wall_seconds": 254.5,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0
+  },
+  "fp_multiplier__C4i__gpt-5.5__456": {
+    "condition": "C4i",
+    "llm_calls": 5,
+    "best_passes": 10,
+    "total_tests": 10,
+    "solved": true,
+    "decomp_modules": [
+      "fp_unpack",
+      "fp_special_cases",
+      "fp_multiply_core",
+      "fp_normalize_round"
+    ],
+    "module_solve_rounds": {
+      "fp_unpack": 1,
+      "fp_special_cases": 1,
+      "fp_multiply_core": 1,
+      "fp_normalize_round": 1
+    },
+    "golden_correct": 0,
+    "golden_total": 0,
+    "design": "fp_multiplier",
+    "model": "gpt-5.5",
+    "seed": 456,
+    "wall_seconds": 403.7,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0
+  },
+  "gauss_siedel__C4i__gpt-5.5__123": {
+    "condition": "C4i",
+    "llm_calls": 19,
+    "best_passes": 50,
+    "total_tests": 50,
+    "solved": true,
+    "decomp_modules": [
+      "gs_reciprocal",
+      "gs_fixed_mul",
+      "gs_iteration_step",
+      "gs_direct_2x2",
+      "gs_solution_selector"
+    ],
+    "module_solve_rounds": {
+      "gs_direct_2x2": 2,
+      "gs_solution_selector": 1
+    },
+    "golden_correct": 0,
+    "golden_total": 0,
+    "design": "gauss_siedel",
+    "model": "gpt-5.5",
+    "seed": 123,
+    "wall_seconds": 945.7,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0
+  },
+  "gauss_siedel__C4i__gpt-5.5__456": {
+    "condition": "C4i",
+    "llm_calls": 20,
+    "best_passes": 50,
+    "total_tests": 50,
+    "solved": true,
+    "decomp_modules": [
+      "gs2x2_reciprocal",
+      "gs2x2_fixed_mul",
+      "gs2x2_iteration_step",
+      "gs2x2_exact_solver",
+      "gs2x2_result_select"
+    ],
+    "module_solve_rounds": {
+      "gs2x2_exact_solver": 3,
+      "gs2x2_result_select": 1
+    },
+    "golden_correct": 0,
+    "golden_total": 0,
+    "design": "gauss_siedel",
+    "model": "gpt-5.5",
+    "seed": 456,
+    "wall_seconds": 880.3,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0
+  },
+  "fp_adder__C4i__gpt-5.5__123": {
+    "condition": "C4i",
+    "llm_calls": 4,
+    "best_passes": 36,
+    "total_tests": 36,
+    "solved": true,
+    "decomp_modules": [
+      "fp_unpack",
+      "fp_special_cases",
+      "fp_add_core"
+    ],
+    "module_solve_rounds": {
+      "fp_unpack": 1,
+      "fp_special_cases": 1,
+      "fp_add_core": 1
+    },
+    "golden_correct": 0,
+    "golden_total": 0,
+    "design": "fp_adder",
+    "model": "gpt-5.5",
+    "seed": 123,
+    "wall_seconds": 269.8,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0
+  },
+  "fp_adder__C4i__gpt-5.5__456": {
+    "condition": "C4i",
+    "llm_calls": 6,
+    "best_passes": 36,
+    "total_tests": 36,
+    "solved": true,
+    "decomp_modules": [
+      "fp_unpack",
+      "fp_special_cases",
+      "fp_align",
+      "fp_addsub",
+      "fp_normalize_round"
+    ],
+    "module_solve_rounds": {
+      "fp_unpack": 1,
+      "fp_special_cases": 1,
+      "fp_align": 1,
+      "fp_addsub": 1,
+      "fp_normalize_round": 1
+    },
+    "golden_correct": 0,
+    "golden_total": 0,
+    "design": "fp_adder",
+    "model": "gpt-5.5",
+    "seed": 456,
+    "wall_seconds": 361.4,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0
+  },
+  "newton_raphson_sqrt__C4i__gpt-5.5__123": {
+    "condition": "C4i",
+    "llm_calls": 5,
+    "best_passes": 50,
+    "total_tests": 50,
+    "solved": true,
+    "decomp_modules": [
+      "sqrt_nr_special_case",
+      "sqrt_nr_initial_guess",
+      "sqrt_nr_iteration_step",
+      "sqrt_nr_convergence"
+    ],
+    "module_solve_rounds": {
+      "sqrt_nr_special_case": 1,
+      "sqrt_nr_initial_guess": 1,
+      "sqrt_nr_iteration_step": 1,
+      "sqrt_nr_convergence": 1
+    },
+    "golden_correct": 0,
+    "golden_total": 0,
+    "design": "newton_raphson_sqrt",
+    "model": "gpt-5.5",
+    "seed": 123,
+    "wall_seconds": 230.4,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0
+  },
+  "newton_raphson_sqrt__C4i__gpt-5.5__456": {
+    "condition": "C4i",
+    "llm_calls": 5,
+    "best_passes": 50,
+    "total_tests": 50,
+    "solved": true,
+    "decomp_modules": [
+      "sqrt_nr_initial_guess",
+      "sqrt_nr_divide",
+      "sqrt_nr_iteration",
+      "sqrt_nr_convergence"
+    ],
+    "module_solve_rounds": {
+      "sqrt_nr_initial_guess": 1,
+      "sqrt_nr_divide": 1,
+      "sqrt_nr_iteration": 1,
+      "sqrt_nr_convergence": 1
+    },
+    "golden_correct": 0,
+    "golden_total": 0,
+    "design": "newton_raphson_sqrt",
+    "model": "gpt-5.5",
+    "seed": 456,
+    "wall_seconds": 203.4,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0
+  },
+  "harris_corner_detection__C4i__gpt-5.5__123": {
+    "condition": "C4i",
+    "llm_calls": 10,
+    "best_passes": 16384,
+    "total_tests": 16384,
+    "solved": true,
+    "decomp_modules": [
+      "harris_sobel3x3",
+      "harris_gradient_products",
+      "harris_gaussian3x3",
+      "harris_response",
+      "harris_threshold"
+    ],
+    "module_solve_rounds": {
+      "harris_gradient_products": 1,
+      "harris_gaussian3x3": 1,
+      "harris_response": 1,
+      "harris_threshold": 1
+    },
+    "golden_correct": 16384,
+    "golden_total": 16384,
+    "design": "harris_corner_detection",
+    "model": "gpt-5.5",
+    "seed": 123,
+    "wall_seconds": 566.9,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0
+  },
+  "harris_corner_detection__C4i__gpt-5.5__456": {
+    "condition": "C4i",
+    "llm_calls": 15,
+    "best_passes": 16384,
+    "total_tests": 16384,
+    "solved": true,
+    "decomp_modules": [
+      "harris_sobel3x3",
+      "harris_gradient_products",
+      "harris_gaussian3x3",
+      "harris_response_calc",
+      "harris_threshold"
+    ],
+    "module_solve_rounds": {
+      "harris_gaussian3x3": 2,
+      "harris_response_calc": 1,
+      "harris_threshold": 1
+    },
+    "golden_correct": 16384,
+    "golden_total": 16384,
+    "design": "harris_corner_detection",
+    "model": "gpt-5.5",
+    "seed": 456,
+    "wall_seconds": 685.7,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0
   }
 }

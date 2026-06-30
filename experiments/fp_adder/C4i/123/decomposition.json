@@ -1,0 +1,8 @@
+{
+  "top_source_file": "verilog/fp_unpack.v",
+  "sub_modules": {
+    "fp_unpack": "Extracts sign, exponent, mantissa, and operand class information.",
+    "fp_special_cases": "Handles NaN, infinity, and zero cases before normal arithmetic.",
+    "fp_add_core": "Performs exponent alignment, significand add/subtract, normalization, rounding, and arithmetic exception flag generation."
+  }
+}

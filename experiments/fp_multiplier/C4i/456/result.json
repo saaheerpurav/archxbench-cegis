@@ -1,0 +1,27 @@
+{
+  "condition": "C4i",
+  "llm_calls": 5,
+  "best_passes": 10,
+  "total_tests": 10,
+  "solved": true,
+  "decomp_modules": [
+    "fp_unpack",
+    "fp_special_cases",
+    "fp_multiply_core",
+    "fp_normalize_round"
+  ],
+  "module_solve_rounds": {
+    "fp_unpack": 1,
+    "fp_special_cases": 1,
+    "fp_multiply_core": 1,
+    "fp_normalize_round": 1
+  },
+  "golden_correct": 0,
+  "golden_total": 0,
+  "design": "fp_multiplier",
+  "model": "gpt-5.5",
+  "seed": 456,
+  "wall_seconds": 403.7,
+  "total_input_tokens": 0,
+  "total_output_tokens": 0
+}

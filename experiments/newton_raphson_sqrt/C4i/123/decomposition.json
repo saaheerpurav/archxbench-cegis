@@ -1,0 +1,9 @@
+{
+  "top_source_file": "verilog/sqrt_nr_special_case.v",
+  "sub_modules": {
+    "sqrt_nr_special_case": "Combinational edge-case detector for zero input and corresponding fixed-point result.",
+    "sqrt_nr_initial_guess": "Combinational fixed-point initial estimate generator for Newton-Raphson iteration.",
+    "sqrt_nr_iteration_step": "Combinational Newton-Raphson update block computing y_next = (y + (X << M) / y) / 2.",
+    "sqrt_nr_convergence": "Combinational convergence checker comparing current and next estimates within one fixed-point LSB."
+  }
+}

@@ -1,4 +1,4 @@
-# ArchXBench-CEGIS: Autonomous RTL Synthesis via LLM-Driven CEGIS
+﻿# ArchXBench-CEGIS: Autonomous RTL Synthesis via LLM-Driven CEGIS
 
 Autonomous Verilog RTL generation using Counter-Example Guided Inductive Synthesis (CEGIS) with large language models. Evaluated on a corrected fork of the [ArchXBench](https://github.com/abdelrahman-elhaddad/ArchXBench) benchmark suite (Levels 2-6, 32 designs).
 
@@ -6,18 +6,20 @@ Autonomous Verilog RTL generation using Counter-Example Guided Inductive Synthes
 
 | Condition | Description | Feedback Type | Multi-turn |
 |-----------|-------------|---------------|------------|
-| **C1** | Zero-shot Pass@5 — 5 independent generations, pick best | None | No |
-| **C2g** | Monolithic CEGIS — iterative repair on the full module, 30 rounds | Golden comparison | Yes |
-| **C4i** | **Investigative CEGIS** — decompose into sub-modules, then study-diagnose-fix loop per sub-module | Structured diagnostic | Yes |
-| **C4tl** | **Trace-Lifted CEGIS** — decompose, then localize faults via reference-gating and targeted repair | Golden comparison + fault localization | Per-repair |
+| **C1** | Zero-shot Pass@5 â€” 5 independent generations, pick best | None | No |
+| **C2g** | Monolithic CEGIS â€” iterative repair on the full module, 30 rounds | Golden comparison | Yes |
+| **C4i** | **Investigative CEGIS** â€” decompose into sub-modules, then study-diagnose-fix loop per sub-module | Structured diagnostic | Yes |
+| **C4tl** | **Trace-Lifted CEGIS** â€” decompose, then localize faults via reference-gating and targeted repair | Golden comparison + fault localization | Per-repair |
 
-**C4i and C4tl are the paper's main contributions.** C4i decomposes complex designs into sub-modules and uses a multi-turn investigative loop (study spec → generate → diagnose failures by tracing expected vs actual values → fix root cause). C4tl adds fault localization: it swaps each candidate sub-module with the reference to identify which module is the culprit, then focuses repair on that module alone.
+**C4i and C4tl are the paper's main contributions.** C4i decomposes complex designs into sub-modules and uses a multi-turn investigative loop (study spec â†’ generate â†’ diagnose failures by tracing expected vs actual values â†’ fix root cause). C4tl adds fault localization: it swaps each candidate sub-module with the reference to identify which module is the culprit, then focuses repair on that module alone.
 
-## Results (Preliminary — Seed Expansion In Progress)
+## Results
 
-Current results are from GPT-5.5 with seed 42 only. Full 3-model × 3-seed sweep is in progress.
+Current canonical C4i results use GPT-5.5 with seeds `42`, `123`, and `456` on the matched comparison set. Broader multi-model sweeps remain baseline/context rather than the main C4i claim.
 
-### C4i vs C4tl on L5-L6 (GPT-5.5, seed 42)
+### Legacy Seed-42 C4i/C4tl Rows (not canonical)
+
+The table below is retained only as historical seed-42 context. Do not use it as the main paper result; some older `1/1` rows are stale and are superseded by the matched-seed C4i table below.
 
 | Design | Level | C4i | C4tl |
 |--------|-------|-----|------|
@@ -30,6 +32,20 @@ Current results are from GPT-5.5 with seed 42 only. Full 3-model × 3-seed sweep
 | aes_decryption | L6 | SOLVED | SOLVED |
 | aes_encryption | L6 | SOLVED | SOLVED |
 | fft_streaming_64pt | L6 | SOLVED | SOLVED |
+
+### Canonical C4i Matched-Seed Results (GPT-5.5, seeds 42/123/456)
+
+See [`results/C4I_MATCHED_RESULTS.md`](results/C4I_MATCHED_RESULTS.md) for per-seed details and artifact paths.
+
+| Design | Level | C4i | C2/C2g GPT-5.5 Baseline | Verification |
+|--------|-------|-----|--------------------------|--------------|
+| `fp_multiplier` | L3 | 3/3 solved, all `10/10` | 0/3 solved, best `7/10` | official self-checking testbench |
+| `gauss_siedel` | L3 | 3/3 solved, all `50/50` | 0/3 solved, all `45/50` | official self-checking testbench |
+| `newton_raphson_sqrt` | L3 | 3/3 solved, all `50/50` | 0/3 solved for GPT-5.5 | official self-checking testbench |
+| `fp_adder` | L3 | 3/3 solved, all `36/36` | 1/3 solved on matched seeds | official self-checking testbench |
+| `harris_corner_detection` | L5 | 3/3 solved, all `16384/16384` | seed 42 solved, slower | external golden JSON |
+
+`golden_correct/golden_total = 0/0` for the L3 rows because those benchmarks do not have separate golden-output JSON files. They are still verified by the official self-checking testbenches, which contain embedded expected outputs or compute expected values internally.
 
 ### Baseline Comparison (C1 vs C2g, GPT-5.5, 3 seeds)
 
@@ -58,7 +74,7 @@ This repo includes a corrected copy of the ArchXBench benchmark. The original be
 The original ArchXBench testbenches use inconsistent output formats across designs. Our verdict parser (`verilog_runner.py`) was extended to handle all of them:
 
 - **False negatives from format mismatch**: Many ArchXBench testbenches output `PASS = N, FAIL = M` but the original parser only recognized `TEST SUMMARY: N PASS, M FAILED`. Correct designs were scored as 0/1. Fixed by generalizing to recognize 6+ verdict formats.
-- **False positives from incomplete output**: Golden comparison counted `n_total = min(len(golden), len(dut))`, so a DUT producing fewer outputs than expected had its missing entries silently ignored. Fixed by using `n_total = len(golden)` — missing DUT entries now count as mismatches.
+- **False positives from incomplete output**: Golden comparison counted `n_total = min(len(golden), len(dut))`, so a DUT producing fewer outputs than expected had its missing entries silently ignored. Fixed by using `n_total = len(golden)` â€” missing DUT entries now count as mismatches.
 
 ### Impact
 
@@ -68,27 +84,28 @@ Without these fixes, the FIR filter designs (L4) are unsolvable because the spec
 
 ```
 archxbench-cegis/
-├── cegis/                          # Source code
-│   ├── tdes/                       # Test-Driven Evolutionary Synthesis framework
-│   │   ├── fpga/
-│   │   │   ├── autonomous/         # CEGIS pipeline (run_aaai.py, orchestrator, client)
-│   │   │   ├── benchmarks/         # Corrected ArchXBench L0-L6 testbenches and specs
-│   │   │   └── experiments/        # Experiment runner infrastructure
-│   │   └── ...                     # Base TDES types, selection, crossover, memory
-│   └── utils/
-├── experiments/                    # Generated artifacts per condition/model/design/seed
-│   ├── C1/                         # Zero-shot baseline
-│   ├── C2g/                        # Monolithic CEGIS
-│   ├── C4/                         # Decompose + stateless CEGIS
-│   ├── C4i/                        # Investigative CEGIS (paper's main contribution)
-│   ├── C4tl/                       # Trace-Lifted CEGIS (paper's main contribution)
-│   └── logs/
-├── results/                        # Metrics and summary tables
-│   ├── EXPERIMENT_RESULTS.md
-│   └── metrics_*.json
-└── scripts/                        # Utilities
-    ├── backfill_golden.py          # Backfill golden_correct/golden_total into old results
-    └── reorganize_experiments.py   # Reorganize experiment folder structure
+â”œâ”€â”€ cegis/                          # Source code
+â”‚   â”œâ”€â”€ tdes/                       # Test-Driven Evolutionary Synthesis framework
+â”‚   â”‚   â”œâ”€â”€ fpga/
+â”‚   â”‚   â”‚   â”œâ”€â”€ autonomous/         # CEGIS pipeline (run_aaai.py, orchestrator, client)
+â”‚   â”‚   â”‚   â”œâ”€â”€ benchmarks/         # Corrected ArchXBench L0-L6 testbenches and specs
+â”‚   â”‚   â”‚   â””â”€â”€ experiments/        # Experiment runner infrastructure
+â”‚   â”‚   â””â”€â”€ ...                     # Base TDES types, selection, crossover, memory
+â”‚   â””â”€â”€ utils/
+â”œâ”€â”€ experiments/                    # Generated artifacts per condition/model/design/seed
+â”‚   â”œâ”€â”€ C1/                         # Zero-shot baseline
+â”‚   â”œâ”€â”€ C2g/                        # Monolithic CEGIS
+â”‚   â”œâ”€â”€ C4/                         # Decompose + stateless CEGIS
+â”‚   â”œâ”€â”€ C4i/                        # Investigative CEGIS (paper's main contribution)
+â”‚   â”œâ”€â”€ C4tl/                       # Trace-Lifted CEGIS (paper's main contribution)
+â”‚   â””â”€â”€ logs/
+â”œâ”€â”€ results/                        # Metrics and summary tables
+â”‚   â”œâ”€â”€ EXPERIMENT_RESULTS.md
+â”‚   â”œâ”€â”€ C4I_MATCHED_RESULTS.md
+â”‚   â””â”€â”€ metrics_*.json
+â””â”€â”€ scripts/                        # Utilities
+    â”œâ”€â”€ backfill_golden.py          # Backfill golden_correct/golden_total into old results
+    â””â”€â”€ reorganize_experiments.py   # Reorganize experiment folder structure
 ```
 
 ### Cell Artifacts
@@ -102,7 +119,7 @@ Each experiment cell at `experiments/{condition}/{model}/{design}/{seed}/` produ
 | `decomposition.json` | Sub-module names and descriptions from the decomposition step | C4, C4i, C4tl |
 
 **Key fields in `result.json`:**
-- `solved`: Boolean — did all tests pass (and golden comparison, for L5/L6)?
+- `solved`: Boolean â€” did all tests pass (and golden comparison, for L5/L6)?
 - `golden_correct` / `golden_total`: Golden output comparison score. Non-zero for L5/L6 designs that use file-based I/O. Zero for L2-L4 designs (testbench-only verification).
 - `best_passes` / `total_tests`: Testbench pass count.
 - `module_solve_rounds`: (C4i/C4tl) Which round each sub-module was solved.
@@ -119,10 +136,10 @@ Requires [iverilog](http://iverilog.icarus.com/) and `vvp` on PATH for Verilog s
 ## Running Experiments
 
 ```bash
-# Load API credentials (Bedrock Mantle — serves all models via OpenAI-compatible endpoint)
+# Load API credentials (Bedrock Mantle â€” serves all models via OpenAI-compatible endpoint)
 source .env.bedrock  # or: set vars manually
 
-# Investigative CEGIS (C4i) — the paper's main method
+# Investigative CEGIS (C4i) â€” the paper's main method
 python -m cegis.tdes.fpga.autonomous.run_aaai \
     --conditions C4i --models gpt-5.5 claude-opus-4-8 claude-haiku-4-5 \
     --seeds 42 123 456 --designs L2 L3 L4 L5 L6 --parallel 3 --output runs/
@@ -155,6 +172,20 @@ python -m cegis.tdes.fpga.autonomous.run_aaai \
 
 Set `OPENAI_API_KEY` and `OPENAI_BASE_URL` for Bedrock Mantle (serves both OpenAI and Anthropic models).
 For direct API access, set `OPENAI_API_KEY` for OpenAI models or `ANTHROPIC_API_KEY` for Anthropic models.
+
+For local Codex CLI runs using an authenticated ChatGPT session instead of API keys:
+
+```bash
+export USE_CODEX_CLI=1
+export CODEX_REASONING_EFFORT=low
+export CODEX_CLI_TIMEOUT=300
+```
+
+On Windows PowerShell, also put OSS CAD Suite on `PATH` before running simulations:
+
+```powershell
+$env:PATH="C:\Users\saahe\Desktop\Programming\Stuff\College\Research\tools\oss-cad-suite\bin;$env:PATH"
+```
 
 ## Backfilling Golden Metrics
 

@@ -1,0 +1,26 @@
+{
+  "condition": "C4i",
+  "llm_calls": 20,
+  "best_passes": 50,
+  "total_tests": 50,
+  "solved": true,
+  "decomp_modules": [
+    "gs2x2_reciprocal",
+    "gs2x2_fixed_mul",
+    "gs2x2_iteration_step",
+    "gs2x2_exact_solver",
+    "gs2x2_result_select"
+  ],
+  "module_solve_rounds": {
+    "gs2x2_exact_solver": 3,
+    "gs2x2_result_select": 1
+  },
+  "golden_correct": 0,
+  "golden_total": 0,
+  "design": "gauss_siedel",
+  "model": "gpt-5.5",
+  "seed": 456,
+  "wall_seconds": 880.3,
+  "total_input_tokens": 0,
+  "total_output_tokens": 0
+}
