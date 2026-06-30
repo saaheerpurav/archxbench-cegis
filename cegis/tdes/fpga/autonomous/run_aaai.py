@@ -50,11 +50,12 @@ from cegis.tdes.fpga.autonomous.orchestrator import (
     _save_outputs,
     PipelineResult,
 )
-from cegis.tdes.fpga.verilog_runner import simulate
+from cegis.tdes.fpga.verilog_runner import simulate, suppress_windows_error_dialogs
 from cegis.tdes.fpga.verilog_suite import VerilogTest, VerilogTestSuite
 from cegis.tdes.types import Candidate, TestLevel, TestVector
 
 logger = logging.getLogger(__name__)
+suppress_windows_error_dialogs()
 
 _ARCHX_ROOT = os.path.join(
     os.path.dirname(os.path.abspath(__file__)),

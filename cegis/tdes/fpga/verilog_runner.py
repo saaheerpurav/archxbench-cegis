@@ -45,6 +45,26 @@ logger = logging.getLogger(__name__)
 _MAX_ERR = 600
 
 
+def suppress_windows_error_dialogs() -> None:
+    """Disable Windows crash dialogs for child simulator processes.
+
+    Generated RTL can occasionally trip faults inside vvp/iverilog. We score
+    those as failed simulations, so modal Windows crash popups only interrupt
+    unattended experiments.
+    """
+    if os.name != "nt":
+        return
+    try:
+        import ctypes
+
+        ctypes.windll.kernel32.SetErrorMode(0x0001 | 0x0002 | 0x8000)
+    except Exception:
+        pass
+
+
+suppress_windows_error_dialogs()
+
+
 def _trunc(text: str, n: int = _MAX_ERR) -> str:
     text = (text or "").strip()
     return text if len(text) <= n else text[: n - 3] + "..."
@@ -149,6 +169,8 @@ def _run(cmd: List[str], cwd: str, timeout: int):
     popen_kwargs = {}
     if os.name != "nt":
         popen_kwargs["start_new_session"] = True  # own process group for killpg
+    else:
+        suppress_windows_error_dialogs()
     proc = subprocess.Popen(
         cmd, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
         text=True, encoding="utf-8", errors="replace", **popen_kwargs,

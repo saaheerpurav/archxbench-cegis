@@ -647,5 +647,147 @@
     "wall_seconds": 685.7,
     "total_input_tokens": 0,
     "total_output_tokens": 0
+  },
+  "gradient_descent__C4i__gpt-5.5__42": {
+    "condition": "C4i",
+    "llm_calls": 22,
+    "best_passes": 50,
+    "total_tests": 50,
+    "solved": true,
+    "decomp_modules": [
+      "gd_poly_derivative",
+      "gd_poly_step",
+      "gd_poly_update"
+    ],
+    "module_solve_rounds": {
+      "gd_poly_update": 3
+    },
+    "golden_correct": 0,
+    "golden_total": 0,
+    "design": "gradient_descent",
+    "model": "gpt-5.5",
+    "seed": 42,
+    "wall_seconds": 2603.5,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0
+  },
+  "gradient_descent__C4i__gpt-5.5__123": {
+    "condition": "C4i",
+    "llm_calls": 4,
+    "best_passes": 50,
+    "total_tests": 50,
+    "solved": true,
+    "decomp_modules": [
+      "gd_poly_derivative",
+      "gd_poly_step",
+      "gd_poly_update"
+    ],
+    "module_solve_rounds": {
+      "gd_poly_derivative": 1,
+      "gd_poly_step": 1,
+      "gd_poly_update": 1
+    },
+    "golden_correct": 0,
+    "golden_total": 0,
+    "design": "gradient_descent",
+    "model": "gpt-5.5",
+    "seed": 123,
+    "wall_seconds": 291.6,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0
+  },
+  "gradient_descent__C4i__gpt-5.5__456": {
+    "condition": "C4i",
+    "llm_calls": 5,
+    "best_passes": 50,
+    "total_tests": 50,
+    "solved": true,
+    "decomp_modules": [
+      "gd_derivative",
+      "gd_step",
+      "gd_update",
+      "gd_iter_done"
+    ],
+    "module_solve_rounds": {
+      "gd_derivative": 1,
+      "gd_step": 1,
+      "gd_update": 1,
+      "gd_iter_done": 1
+    },
+    "golden_correct": 0,
+    "golden_total": 0,
+    "design": "gradient_descent",
+    "model": "gpt-5.5",
+    "seed": 456,
+    "wall_seconds": 361.7,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0
+  },
+  "newton_raphson_polynomial__C4i__gpt-5.5__42": {
+    "condition": "C4i",
+    "llm_calls": 29,
+    "best_passes": 17,
+    "total_tests": 100,
+    "solved": false,
+    "decomp_modules": [
+      "nr_poly_eval_fixed",
+      "nr_derivative_eval_fixed",
+      "nr_fixed_div_step",
+      "nr_root_verify_fixed"
+    ],
+    "module_solve_rounds": {},
+    "golden_correct": 0,
+    "golden_total": 0,
+    "design": "newton_raphson_polynomial",
+    "model": "gpt-5.5",
+    "seed": 42,
+    "wall_seconds": 1934.9,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0
+  },
+  "newton_raphson_polynomial__C4i__gpt-5.5__123": {
+    "condition": "C4i",
+    "llm_calls": 26,
+    "best_passes": 17,
+    "total_tests": 100,
+    "solved": false,
+    "decomp_modules": [
+      "nr_poly_eval_fixed",
+      "nr_deriv_eval_fixed",
+      "nr_fixed_div",
+      "nr_newton_update",
+      "nr_root_verify"
+    ],
+    "module_solve_rounds": {},
+    "golden_correct": 0,
+    "golden_total": 0,
+    "design": "newton_raphson_polynomial",
+    "model": "gpt-5.5",
+    "seed": 123,
+    "wall_seconds": 1411.8,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0
+  },
+  "newton_raphson_polynomial__C4i__gpt-5.5__456": {
+    "condition": "C4i",
+    "llm_calls": 29,
+    "best_passes": 89,
+    "total_tests": 100,
+    "solved": false,
+    "decomp_modules": [
+      "nr_poly_deriv_eval",
+      "nr_newton_update",
+      "nr_convergence_check",
+      "nr_root_verify"
+    ],
+    "module_solve_rounds": {},
+    "golden_correct": 0,
+    "golden_total": 0,
+    "design": "newton_raphson_polynomial",
+    "model": "gpt-5.5",
+    "seed": 456,
+    "wall_seconds": 1479.9,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0
   }
 }

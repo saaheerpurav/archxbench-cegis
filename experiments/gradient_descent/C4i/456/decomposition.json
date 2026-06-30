@@ -1,0 +1,9 @@
+{
+  "top_source_file": "verilog/gd_derivative.v",
+  "sub_modules": {
+    "gd_derivative": "Combinational fixed-point derivative computation for f'(x) = 2*a*x + b.",
+    "gd_step": "Combinational fixed-point multiplication of alpha and gradient to produce the update step.",
+    "gd_update": "Combinational subtractor that applies the gradient descent update to the current x value.",
+    "gd_iter_done": "Combinational iteration limit comparator used by the top-level FSM."
+  }
+}

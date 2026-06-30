@@ -1,0 +1,22 @@
+{
+  "condition": "C4i",
+  "llm_calls": 29,
+  "best_passes": 89,
+  "total_tests": 100,
+  "solved": false,
+  "decomp_modules": [
+    "nr_poly_deriv_eval",
+    "nr_newton_update",
+    "nr_convergence_check",
+    "nr_root_verify"
+  ],
+  "module_solve_rounds": {},
+  "golden_correct": 0,
+  "golden_total": 0,
+  "design": "newton_raphson_polynomial",
+  "model": "gpt-5.5",
+  "seed": 456,
+  "wall_seconds": 1479.9,
+  "total_input_tokens": 0,
+  "total_output_tokens": 0
+}

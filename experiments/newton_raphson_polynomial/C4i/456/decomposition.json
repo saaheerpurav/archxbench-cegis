@@ -1,0 +1,9 @@
+{
+  "top_source_file": "verilog/nr_poly_deriv_eval.v",
+  "sub_modules": {
+    "nr_poly_deriv_eval": "Combinational fixed-point Horner evaluator for p(x) and p'(x) with saturated signed output.",
+    "nr_newton_update": "Combinational Newton-Raphson update block using fixed-point division and derivative-zero handling.",
+    "nr_convergence_check": "Combinational convergence detector based on update magnitude and zero-derivative polynomial residual.",
+    "nr_root_verify": "Combinational verification block that reevaluates p(root) and asserts valid when within tolerance."
+  }
+}

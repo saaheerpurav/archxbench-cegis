@@ -1,0 +1,10 @@
+{
+  "top_source_file": "verilog/nr_poly_eval_fixed.v",
+  "sub_modules": {
+    "nr_poly_eval_fixed": "Combinational fixed-point cubic polynomial evaluator using Horner form.",
+    "nr_deriv_eval_fixed": "Combinational fixed-point derivative evaluator for a1 + 2*a2*x + 3*a3*x^2.",
+    "nr_fixed_div": "Combinational fixed-point divider that computes numerator divided by denominator with FRAC scaling.",
+    "nr_newton_update": "Combinational Newton-Raphson update block that holds the current value when the derivative is zero.",
+    "nr_root_verify": "Combinational verification block that checks whether the absolute polynomial residual is within tolerance."
+  }
+}
