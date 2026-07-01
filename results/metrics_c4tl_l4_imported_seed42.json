@@ -1,0 +1,89 @@
+{
+  "fp_adder_pipeline__C4tl__codex-gpt-5.5__42": {
+    "condition": "C4tl",
+    "llm_calls": 7,
+    "best_passes": 23,
+    "total_tests": 23,
+    "solved": true,
+    "reference_oracle_valid": true,
+    "decomp_modules": [
+      "fp_unpack",
+      "fp_special_cases",
+      "fp_align",
+      "fp_addsub",
+      "fp_normalize",
+      "fp_round_pack"
+    ],
+    "module_repair_rounds": {
+      "fp_unpack": 0,
+      "fp_special_cases": 0,
+      "fp_align": 0,
+      "fp_addsub": 0,
+      "fp_normalize": 0,
+      "fp_round_pack": 0
+    },
+    "localization_history": [],
+    "design": "fp_adder_pipeline",
+    "model": "codex-gpt-5.5",
+    "seed": 42,
+    "wall_seconds": 315.8,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0
+  },
+  "fft_16pt_iterative__C4tl__codex-gpt-5.5__42": {
+    "condition": "C4tl",
+    "llm_calls": 5,
+    "best_passes": 33,
+    "total_tests": 33,
+    "solved": true,
+    "reference_oracle_valid": true,
+    "decomp_modules": [
+      "fft16_bit_reverse",
+      "fft16_twiddle_rom",
+      "fft16_butterfly",
+      "fft16_output_scale"
+    ],
+    "module_repair_rounds": {
+      "fft16_bit_reverse": 0,
+      "fft16_twiddle_rom": 0,
+      "fft16_butterfly": 0,
+      "fft16_output_scale": 0
+    },
+    "localization_history": [],
+    "design": "fft_16pt_iterative",
+    "model": "codex-gpt-5.5",
+    "seed": 42,
+    "wall_seconds": 238.7,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0
+  },
+  "ifft_16pt_iterative__C4tl__codex-gpt-5.5__42": {
+    "condition": "C4tl",
+    "llm_calls": 7,
+    "best_passes": 33,
+    "total_tests": 33,
+    "solved": true,
+    "reference_oracle_valid": true,
+    "decomp_modules": [
+      "fft16_bit_reverse",
+      "fft16_address_gen",
+      "fft16_twiddle_rom",
+      "fft16_complex_mult_q15",
+      "fft16_butterfly"
+    ],
+    "module_repair_rounds": {
+      "fft16_bit_reverse": 0,
+      "fft16_address_gen": 0,
+      "fft16_twiddle_rom": 0,
+      "fft16_complex_mult_q15": 0,
+      "fft16_butterfly": 0
+    },
+    "localization_history": [],
+    "design": "ifft_16pt_iterative",
+    "model": "codex-gpt-5.5",
+    "seed": 42,
+    "wall_seconds": 440.5,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0
+  }
+}

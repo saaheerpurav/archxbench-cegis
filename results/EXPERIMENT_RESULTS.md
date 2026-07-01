@@ -16,17 +16,17 @@
 
 Updated: 2026-07-01.
 
-The table below is the current main-method comparison. It uses matched GPT-5.5 seeds `42`, `123`, and `456` for C4i against the existing monolithic C2/C2g GPT-5.5 baselines. Detailed per-seed artifacts are documented in [`C4I_MATCHED_RESULTS.md`](C4I_MATCHED_RESULTS.md).
+The table below is the current main-method comparison. It uses matched GPT-5.5 seeds `42`, `123`, and `456` for C4i against the existing monolithic C2g GPT-5.5 baselines. Detailed per-seed artifacts are documented in [`C4I_MATCHED_RESULTS.md`](C4I_MATCHED_RESULTS.md). The complete current run matrix is in [`CURRENT_RUN_MATRIX.md`](CURRENT_RUN_MATRIX.md).
 
-| Design | Level | C4i GPT-5.5 | C2/C2g GPT-5.5 Baseline | Verification |
-|--------|-------|-------------|--------------------------|--------------|
-| `fp_multiplier` | L3 | 3/3 solved, all `10/10` | 0/3 solved, best `7/10` | official self-checking testbench |
-| `gauss_siedel` | L3 | 3/3 solved, all `50/50` | 0/3 solved, all `45/50` | official self-checking testbench |
-| `newton_raphson_sqrt` | L3 | 3/3 solved, all `50/50` | 0/3 solved for GPT-5.5 | official self-checking testbench |
-| `fp_adder` | L3 | 3/3 solved, all `36/36` | 1/3 solved on matched seeds | official self-checking testbench |
-| `gradient_descent` | L3 | 3/3 solved, all `50/50` | 0/3 solved, no passing simulations | official self-checking testbench |
-| `harris_corner_detection` | L5 | 3/3 solved, all `16384/16384` | seed `42` solved, but slower | external golden JSON |
-| `newton_raphson_polynomial` | L3 | 0/3 solved; best `89/100` | 0/3 solved; best `97/100` | official self-checking testbench |
+| Design | Level | C4i GPT-5.5 | C2g GPT-5.5 Baseline | Verification | Interpretation |
+|--------|-------|-------------|----------------------|--------------|----------------|
+| `fp_multiplier` | L3 | 3/3 solved, all `10/10` | 3/3 solved | official self-checking testbench | not exclusive |
+| `gauss_siedel` | L3 | 3/3 solved, all `50/50` | 0/3 solved, all `47/50` | official self-checking testbench | C4i win |
+| `newton_raphson_sqrt` | L3 | 3/3 solved, all `50/50` | 3/3 solved | official self-checking testbench | not exclusive |
+| `fp_adder` | L3 | 3/3 solved, all `36/36` | 3/3 solved | official self-checking testbench | not exclusive |
+| `gradient_descent` | L3 | 3/3 solved, all `50/50` | 0/3 solved, no passing simulations | official self-checking testbench | C4i win |
+| `harris_corner_detection` | L5 | 3/3 solved, all `16384/16384` | 3/3 solved | external golden JSON | both solve |
+| `newton_raphson_polynomial` | L3 | 0/3 solved; best `89/100` | 0/3 solved; best `97/100` | official self-checking testbench | negative result |
 
 ### C4i Per-Seed Metrics
 
@@ -55,6 +55,19 @@ The table below is the current main-method comparison. It uses matched GPT-5.5 s
 | `newton_raphson_polynomial` | 456 | no | `89/100` | `0/0` | 29 | 1479.9 |
 
 Rows with `golden=0/0` are official self-checking-testbench results. The L3 testbenches contain embedded expected outputs or compute expected values internally. `harris_corner_detection` is external-golden verified.
+
+## Imported C4tl L4 Results
+
+These C4tl artifacts were generated in the older `openevolve` workspace and imported into this repo on 2026-07-01. They now live in the canonical artifact layout under `experiments/{design}/C4tl/{seed}/`.
+
+| Design | Level | Seeds | C4tl Result | Verification |
+|--------|-------|-------|-------------|--------------|
+| `fp_mult_pipeline` | L4 | `42`, `123`, `456`, `789`, `1024` | 5/5 solved, all `31/31` | official self-checking testbench |
+| `fp_adder_pipeline` | L4 | `42`, `123`, `456`, `789`, `1024` | 5/5 solved, all `23/23` | official self-checking testbench |
+| `fft_16pt_iterative` | L4 | `42`, `123`, `456`, `789`, `1024` | 5/5 solved, all `33/33` | official self-checking testbench |
+| `ifft_16pt_iterative` | L4 | `42`, `123`, `456`, `789`, `1024` | 5/5 solved, all `33/33` | official self-checking testbench |
+
+The imported metrics are stored in `metrics_c4tl_l4_imported_seed42.json` and `metrics_c4tl_l4_imported_123_456_789_1024.json`.
 
 ## Design Inventory
 
@@ -111,12 +124,12 @@ Rows with `golden=0/0` are official self-checking-testbench results. The L3 test
 
 | Design | gpt-5.5 | o4-mini | gpt-4o |
 |--------|---------|---------|--------|
-| fp_adder | **1/3** | 0/3 | 0/3 |
-| fp_multiplier | 0/3 | 0/3 | 1/3 |
+| fp_adder | **3/3** | 0/3 | 0/3 |
+| fp_multiplier | **3/3** | 0/3 | 1/3 |
 | gauss_siedel | 0/3 | 0/3 | 0/3 |
 | gradient_descent | 0/3 | 0/3 | 0/3 |
 | newton_raphson_polynomial | 0/3 | 0/3 | 0/3 |
-| newton_raphson_sqrt | 0/3 | **2/3** | 1/3 |
+| newton_raphson_sqrt | **3/3** | **2/3** | 1/3 |
 
 ### Level L4
 
@@ -241,11 +254,11 @@ Rows with `golden=0/0` are official self-checking-testbench results. The L3 test
 
 4. **CEGIS feedback is critical**: All models show massive lifts from C1→C2g. gpt-5.5: 16/96→43/96 (+169%), o4-mini: 7/96→23/96 (+229%), gpt-4o: 4/96→7/96 (+75%). CEGIS unlocks 9 new designs for gpt-5.5, 7 for o4-mini, 3 for gpt-4o that zero-shot cannot solve.
 
-5. **C4i resolves prior monolithic failures**: `gauss_siedel`, `fp_multiplier`, and `newton_raphson_sqrt` are solved by C4i on all three GPT-5.5 seeds while monolithic GPT-5.5 C2/C2g fails the matched seeds. `fp_adder` improves from 1/3 monolithic solves to 3/3 C4i solves.
+5. **C4i resolves some monolithic failures**: `gauss_siedel` and `gradient_descent` are solved by C4i on all three GPT-5.5 seeds while monolithic GPT-5.5 C2g fails the matched seeds. `fp_multiplier`, `fp_adder`, `newton_raphson_sqrt`, and `harris_corner_detection` are still solved by C4i, but they are not exclusive wins because formal C2g GPT-5.5 also solves them.
 
 6. **External golden evidence**: `harris_corner_detection` is solved by C4i on all three GPT-5.5 seeds with `16384/16384` external golden matches. C2g also solves seed 42, but C4i is faster on the logged seed-42 comparison.
 
-7. **Latest L3 extension**: `gradient_descent` is now solved by C4i on all three GPT-5.5 seeds (`50/50` each) while C2g has no passing simulation on the same design. `newton_raphson_polynomial` remains unsolved; C4i reaches `89/100`, while C2g reaches `97/100`.
+7. **Latest L3 extension**: `gradient_descent` is solved by C4i on all three GPT-5.5 seeds (`50/50` each) while C2g has no passing simulation on the same design. `newton_raphson_polynomial` remains unsolved; C4i reaches `89/100`, while C2g reaches `97/100`.
 
 ---
 
@@ -257,6 +270,7 @@ The following runs are logged for transparency but are not main paper claims:
 |--------|-----------|------|--------|--------|
 | `newton_raphson_polynomial` | C4m | 456 | failed, `86/100`; rerun in debug folder scored `17/100` | `experiments/newton_raphson_polynomial/C4m/`, `experiments_c4m_debug/` |
 | `newton_raphson_polynomial` | C4a | 456 | failed, `97/100` | `experiments_c4a_debug/` |
+| `band_pass_fir` | C4i/C4tl | 42 | failed; C4tl reached `3/1001` | `experiments_bandpass_debug/` |
 | `dct_idct_8pt_pipelined` | C4a | 42 | failed, `0/1` | `experiments_c4a_debug/` |
 | `fft_16pt_iterative` | C4a | 42 | failed, `30/33` | `experiments_c4a_debug/` |
 | `quantized_matmul` | C2g/C4tl | 42 | both failed, `0/0` | `experiments_quantized_debug/` |

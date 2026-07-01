@@ -1,0 +1,9 @@
+{
+  "top_source_file": "verilog/ifft16_bit_reverse_addr.v",
+  "sub_modules": {
+    "ifft16_bit_reverse_addr": "Combinational 4-bit bit-reversal mapper used while loading DIT input order.",
+    "ifft16_stage_addr_gen": "Combinational radix-2 stage address and twiddle-index generator for the iterative controller.",
+    "ifft16_twiddle_rom": "Combinational Q1.15 twiddle coefficient ROM for N=16 with FFT/IFFT sine sign selection.",
+    "ifft16_butterfly": "Combinational fixed-point complex radix-2 butterfly with rounded Q1.15 twiddle multiplication."
+  }
+}

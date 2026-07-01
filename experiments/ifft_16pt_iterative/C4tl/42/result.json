@@ -1,25 +1,29 @@
 {
   "condition": "C4tl",
-  "llm_calls": 29,
-  "best_passes": 0,
-  "total_tests": 1,
-  "solved": false,
+  "llm_calls": 7,
+  "best_passes": 33,
+  "total_tests": 33,
+  "solved": true,
+  "reference_oracle_valid": true,
   "decomp_modules": [
-    "ifft16_bit_reverse",
-    "ifft16_pair_index",
-    "ifft16_twiddle_rom",
-    "ifft16_butterfly_q15",
-    "ifft16_output_scale"
+    "fft16_bit_reverse",
+    "fft16_address_gen",
+    "fft16_twiddle_rom",
+    "fft16_complex_mult_q15",
+    "fft16_butterfly"
   ],
-  "ref_passes": 33,
-  "ref_total": 33,
-  "golden_correct": 0,
-  "golden_total": 1,
-  "module_solve_rounds": {},
+  "module_repair_rounds": {
+    "fft16_bit_reverse": 0,
+    "fft16_address_gen": 0,
+    "fft16_twiddle_rom": 0,
+    "fft16_complex_mult_q15": 0,
+    "fft16_butterfly": 0
+  },
+  "localization_history": [],
   "design": "ifft_16pt_iterative",
-  "model": "gpt-5.5",
+  "model": "codex-gpt-5.5",
   "seed": 42,
-  "wall_seconds": 970.6,
-  "total_input_tokens": 80423,
-  "total_output_tokens": 65446
+  "wall_seconds": 440.5,
+  "total_input_tokens": 0,
+  "total_output_tokens": 0
 }

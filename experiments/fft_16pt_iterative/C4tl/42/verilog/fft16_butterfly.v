@@ -1,66 +1,68 @@
 `timescale 1ns/1ps
 
 module fft16_butterfly #(
-    parameter IN_W    = 16,
+    parameter DATA_W = 16,
     parameter COEFF_W = 16
 ) (
-    input  signed [IN_W-1:0]    xp_real,
-    input  signed [IN_W-1:0]    xp_imag,
-    input  signed [IN_W-1:0]    xq_real,
-    input  signed [IN_W-1:0]    xq_imag,
-    input  signed [COEFF_W-1:0] tw_cos,
-    input  signed [COEFF_W-1:0] tw_sin,
-    output signed [IN_W-1:0]    yp_real,
-    output signed [IN_W-1:0]    yp_imag,
-    output signed [IN_W-1:0]    yq_real,
-    output signed [IN_W-1:0]    yq_imag
+    input signed [DATA_W-1:0] a_real,
+    input signed [DATA_W-1:0] a_imag,
+    input signed [DATA_W-1:0] b_real,
+    input signed [DATA_W-1:0] b_imag,
+    input signed [COEFF_W-1:0] tw_cos,
+    input signed [COEFF_W-1:0] tw_sin,
+    input ifft_mode,
+    output signed [DATA_W-1:0] y0_real,
+    output signed [DATA_W-1:0] y0_imag,
+    output signed [DATA_W-1:0] y1_real,
+    output signed [DATA_W-1:0] y1_imag
 );
+    localparam TW_EXT_W = COEFF_W + 1;
+    localparam PROD_W   = DATA_W + TW_EXT_W;
+    localparam ACC_W    = PROD_W + 1;
 
-    localparam integer FRAC_W = COEFF_W - 1;
-    localparam integer PROD_W = IN_W + COEFF_W;
-    localparam integer ACC_W  = PROD_W + 1;
+    wire signed [TW_EXT_W-1:0] cos_ext;
+    wire signed [TW_EXT_W-1:0] sin_ext;
+    wire signed [TW_EXT_W-1:0] sin_eff;
 
-    // Q1.(COEFF_W-1) rounding constant.
-    // For COEFF_W=16 this is 2^14.
-    localparam signed [ACC_W-1:0] ROUND_CONST =
-        {{(ACC_W-COEFF_W+1){1'b0}}, 1'b1, {(COEFF_W-2){1'b0}}};
+    assign cos_ext = {tw_cos[COEFF_W-1], tw_cos};
+    assign sin_ext = {tw_sin[COEFF_W-1], tw_sin};
 
-    // Complex twiddle multiply:
-    //   (xq_real + j*xq_imag) * (tw_cos - j*tw_sin)
-    //
-    //   tr_real = xq_real*tw_cos + xq_imag*tw_sin
-    //   tr_imag = xq_imag*tw_cos - xq_real*tw_sin
-    //
-    // Products are IN_W + COEFF_W bits.
-    wire signed [PROD_W-1:0] prod_xr_cos = xq_real * tw_cos;
-    wire signed [PROD_W-1:0] prod_xi_sin = xq_imag * tw_sin;
-    wire signed [PROD_W-1:0] prod_xi_cos = xq_imag * tw_cos;
-    wire signed [PROD_W-1:0] prod_xr_sin = xq_real * tw_sin;
+    // FFT:  cos - j*sin.  IFFT: cos + j*sin, equivalent to sin_eff = -sin.
+    assign sin_eff = ifft_mode ? -sin_ext : sin_ext;
 
-    // Extend by one bit before adding/subtracting two full-width products.
-    wire signed [ACC_W-1:0] prod_xr_cos_ext = {prod_xr_cos[PROD_W-1], prod_xr_cos};
-    wire signed [ACC_W-1:0] prod_xi_sin_ext = {prod_xi_sin[PROD_W-1], prod_xi_sin};
-    wire signed [ACC_W-1:0] prod_xi_cos_ext = {prod_xi_cos[PROD_W-1], prod_xi_cos};
-    wire signed [ACC_W-1:0] prod_xr_sin_ext = {prod_xr_sin[PROD_W-1], prod_xr_sin};
+    wire signed [PROD_W-1:0] br_cos;
+    wire signed [PROD_W-1:0] bi_sin;
+    wire signed [PROD_W-1:0] bi_cos;
+    wire signed [PROD_W-1:0] br_sin;
 
-    // Add the Q1.15 rounding constant before the arithmetic right shift.
-    wire signed [ACC_W-1:0] tr_real_acc =
-        prod_xr_cos_ext + prod_xi_sin_ext + ROUND_CONST;
+    assign br_cos = b_real * cos_ext;
+    assign bi_sin = b_imag * sin_eff;
+    assign bi_cos = b_imag * cos_ext;
+    assign br_sin = b_real * sin_eff;
 
-    wire signed [ACC_W-1:0] tr_imag_acc =
-        prod_xi_cos_ext - prod_xr_sin_ext + ROUND_CONST;
+    wire signed [ACC_W-1:0] real_acc;
+    wire signed [ACC_W-1:0] imag_acc;
+    wire signed [ACC_W-1:0] round_q15;
 
-    wire signed [ACC_W-1:0] tr_real_shifted = tr_real_acc >>> FRAC_W;
-    wire signed [ACC_W-1:0] tr_imag_shifted = tr_imag_acc >>> FRAC_W;
+    assign round_q15 = {{(ACC_W-15){1'b0}}, 15'sd16384};
 
-    // Keep IN_W bits. No saturation is specified.
-    wire signed [IN_W-1:0] tr_real = tr_real_shifted[IN_W-1:0];
-    wire signed [IN_W-1:0] tr_imag = tr_imag_shifted[IN_W-1:0];
+    assign real_acc = {br_cos[PROD_W-1], br_cos} + {bi_sin[PROD_W-1], bi_sin};
+    assign imag_acc = {bi_cos[PROD_W-1], bi_cos} - {br_sin[PROD_W-1], br_sin};
 
-    // Radix-2 butterfly outputs.
-    assign yp_real = xp_real + tr_real;
-    assign yp_imag = xp_imag + tr_imag;
-    assign yq_real = xp_real - tr_real;
-    assign yq_imag = xp_imag - tr_imag;
+    wire signed [ACC_W-1:0] tr_real_wide;
+    wire signed [ACC_W-1:0] tr_imag_wide;
 
+    assign tr_real_wide = (real_acc + round_q15) >>> 15;
+    assign tr_imag_wide = (imag_acc + round_q15) >>> 15;
+
+    wire signed [DATA_W-1:0] tr_real;
+    wire signed [DATA_W-1:0] tr_imag;
+
+    assign tr_real = tr_real_wide[DATA_W-1:0];
+    assign tr_imag = tr_imag_wide[DATA_W-1:0];
+
+    assign y0_real = a_real + tr_real;
+    assign y0_imag = a_imag + tr_imag;
+    assign y1_real = a_real - tr_real;
+    assign y1_imag = a_imag - tr_imag;
 endmodule

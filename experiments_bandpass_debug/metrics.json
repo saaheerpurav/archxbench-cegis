@@ -1,0 +1,46 @@
+{
+  "band_pass_fir__C4i__gpt-5.5__42": {
+    "condition": "C4i",
+    "solved": false,
+    "llm_calls": 28,
+    "error": "final compile failed",
+    "decomp_modules": [
+      "bpf_coeff_rom",
+      "bpf_tap_product",
+      "bpf_mac_sum"
+    ],
+    "module_solve_rounds": {},
+    "golden_correct": 0,
+    "golden_total": 0,
+    "design": "band_pass_fir",
+    "model": "gpt-5.5",
+    "seed": 42,
+    "wall_seconds": 1244.1,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0
+  },
+  "band_pass_fir__C4tl__gpt-5.5__42": {
+    "condition": "C4tl",
+    "llm_calls": 29,
+    "best_passes": 3,
+    "total_tests": 1001,
+    "solved": false,
+    "decomp_modules": [
+      "bandpass_fir_tapline",
+      "bandpass_fir_coeff_rom",
+      "bandpass_fir_mac",
+      "bandpass_fir_scaler"
+    ],
+    "ref_passes": 3,
+    "ref_total": 1001,
+    "golden_correct": 0,
+    "golden_total": 0,
+    "module_solve_rounds": {},
+    "design": "band_pass_fir",
+    "model": "gpt-5.5",
+    "seed": 42,
+    "wall_seconds": 2009.2,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "top_source_file": "verilog/fft16_pair_index.v",
+  "sub_modules": {
+    "fft16_pair_index": "Combinational address generator for the current radix-2 DIT butterfly pair and twiddle index.",
+    "fft16_twiddle_rom": "Combinational Q1.15 twiddle coefficient lookup table for N=16.",
+    "fft16_butterfly": "Combinational fixed-point complex radix-2 butterfly with FFT/IFFT twiddle sign selection.",
+    "fft16_output_scale": "Combinational output normalization block that divides IFFT results by N=16 and leaves FFT results unscaled."
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "top_source_file": "verilog/fp_unpack.v",
+  "sub_modules": {
+    "fp_unpack": "Combinational IEEE-754 field extraction and zero/infinity/NaN classification.",
+    "fp_special_cases": "Combinational handling for NaN propagation, infinities, invalid infinity cancellation, and signed zero special cases.",
+    "fp_add_core": "Combinational single-precision add/sub datapath for finite operands, including alignment, magnitude add/subtract, normalization, round-to-nearest-even, overflow, underflow, and denormal handling.",
+    "fp_result_pack": "Combinational final result selector between special-case result and normal arithmetic result."
+  }
+}

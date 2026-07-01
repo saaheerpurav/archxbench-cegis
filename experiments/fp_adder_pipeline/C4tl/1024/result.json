@@ -1,0 +1,83 @@
+{
+  "condition": "C4tl",
+  "llm_calls": 7,
+  "best_passes": 23,
+  "total_tests": 23,
+  "solved": true,
+  "reference_oracle_valid": true,
+  "decomp_modules": [
+    "fp_unpack",
+    "fp_special_cases",
+    "fp_align",
+    "fp_addsub_significands",
+    "fp_normalize_round_pack"
+  ],
+  "module_repair_rounds": {
+    "fp_unpack": 0,
+    "fp_special_cases": 1,
+    "fp_align": 0,
+    "fp_addsub_significands": 0,
+    "fp_normalize_round_pack": 0
+  },
+  "localization_history": [
+    {
+      "round": 1,
+      "full_passes": 0,
+      "full_total": 0,
+      "focus_module": "fp_special_cases",
+      "isolated_scores": [
+        {
+          "module": "fp_unpack",
+          "passes": 23,
+          "total": 23,
+          "rate": 1.0,
+          "kind": "pass",
+          "compile_error": "",
+          "stdout_excerpt": "No specific failure lines found in output."
+        },
+        {
+          "module": "fp_special_cases",
+          "passes": 0,
+          "total": 0,
+          "rate": 0.0,
+          "kind": "compile",
+          "compile_error": "C:\\Users\\saahe\\AppData\\Local\\Temp\\tdes_fpga_b72enuls\\fp_special_cases.v:47: syntax error\nC:\\Users\\saahe\\AppData\\Local\\Temp\\tdes_fpga_b72enuls\\fp_special_cases.v:36: error: Syntax error in continuous assignment",
+          "stdout_excerpt": ""
+        },
+        {
+          "module": "fp_align",
+          "passes": 23,
+          "total": 23,
+          "rate": 1.0,
+          "kind": "pass",
+          "compile_error": "",
+          "stdout_excerpt": "No specific failure lines found in output."
+        },
+        {
+          "module": "fp_addsub_significands",
+          "passes": 23,
+          "total": 23,
+          "rate": 1.0,
+          "kind": "pass",
+          "compile_error": "",
+          "stdout_excerpt": "No specific failure lines found in output."
+        },
+        {
+          "module": "fp_normalize_round_pack",
+          "passes": 23,
+          "total": 23,
+          "rate": 1.0,
+          "kind": "pass",
+          "compile_error": "",
+          "stdout_excerpt": "No specific failure lines found in output."
+        }
+      ]
+    }
+  ],
+  "design": "fp_adder_pipeline",
+  "model": "codex-gpt-5.5",
+  "seed": 1024,
+  "wall_seconds": 325.7,
+  "total_input_tokens": 0,
+  "total_output_tokens": 0
+}

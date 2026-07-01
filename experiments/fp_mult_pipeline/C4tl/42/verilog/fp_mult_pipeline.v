@@ -8,294 +8,239 @@ module fp_mult_pipeline #(
     input [31:0] a,
     input [31:0] b,
     input valid_in,
-    output reg [31:0] result,
-    output reg valid_out
+    output [31:0] result,
+    output valid_out
 );
 
-    /*
-     * Stage 0 combinational unpack and early special-case classification
-     */
-    wire        a_sign_w;
-    wire [7:0]  a_exp_w;
-    wire [22:0] a_frac_w;
-    wire [23:0] a_sig_w;
-    wire signed [12:0] a_unbiased_exp_w;
-    wire        a_zero_w;
-    wire        a_subnormal_w;
-    wire        a_inf_w;
-    wire        a_nan_w;
+localparam EXP_WIDTH  = 8;
+localparam MANT_WIDTH = 23;
+localparam SIG_WIDTH  = MANT_WIDTH + 1;
+localparam PROD_WIDTH = SIG_WIDTH * 2;
+localparam EXP_CALC_WIDTH = 10;
 
-    wire        b_sign_w;
-    wire [7:0]  b_exp_w;
-    wire [22:0] b_frac_w;
-    wire [23:0] b_sig_w;
-    wire signed [12:0] b_unbiased_exp_w;
-    wire        b_zero_w;
-    wire        b_subnormal_w;
-    wire        b_inf_w;
-    wire        b_nan_w;
+wire s1_sign_c;
+wire [7:0] s1_exp_a_c, s1_exp_b_c;
+wire [23:0] s1_sig_a_c, s1_sig_b_c;
+wire s1_zero_a_c, s1_zero_b_c;
+wire s1_inf_a_c, s1_inf_b_c;
+wire s1_nan_a_c, s1_nan_b_c;
+wire s1_sub_a_c, s1_sub_b_c;
 
-    wire special_sign_w;
-    wire special_nan_w;
-    wire special_inf_w;
-    wire special_zero_w;
+fp_mult_unpack u_unpack (
+    .a(a),
+    .b(b),
+    .sign(s1_sign_c),
+    .exp_a(s1_exp_a_c),
+    .exp_b(s1_exp_b_c),
+    .sig_a(s1_sig_a_c),
+    .sig_b(s1_sig_b_c),
+    .zero_a(s1_zero_a_c),
+    .zero_b(s1_zero_b_c),
+    .inf_a(s1_inf_a_c),
+    .inf_b(s1_inf_b_c),
+    .nan_a(s1_nan_a_c),
+    .nan_b(s1_nan_b_c),
+    .sub_a(s1_sub_a_c),
+    .sub_b(s1_sub_b_c)
+);
 
-    fp_unpack u_unpack_a (
-        .x(a),
-        .sign(a_sign_w),
-        . exponent(a_exp_w),
-        .fraction(a_frac_w),
-        .significand(a_sig_w),
-        .unbiased_exponent(a_unbiased_exp_w),
-        .is_zero(a_zero_w),
-        .is_subnormal(a_subnormal_w),
-        .is_inf(a_inf_w),
-        .is_nan(a_nan_w)
-    );
+reg s1_sign;
+reg [7:0] s1_exp_a, s1_exp_b;
+reg [23:0] s1_sig_a, s1_sig_b;
+reg s1_zero_a, s1_zero_b;
+reg s1_inf_a, s1_inf_b;
+reg s1_nan_a, s1_nan_b;
+reg s1_sub_a, s1_sub_b;
 
-    fp_unpack u_unpack_b (
-        .x(b),
-        .sign(b_sign_w),
-        .exponent(b_exp_w),
-        .fraction(b_frac_w),
-        .significand(b_sig_w),
-        .unbiased_exponent(b_unbiased_exp_w),
-        .is_zero(b_zero_w),
-        .is_subnormal(b_subnormal_w),
-        .is_inf(b_inf_w),
-        .is_nan(b_nan_w)
-    );
+wire [47:0] s2_product_c;
+wire signed [9:0] s2_exp_c;
 
-    fp_special_cases u_special_cases (
-        .a_sign(a_sign_w),
-        .b_sign(b_sign_w),
-        .a_zero(a_zero_w),
-        .b_zero(b_zero_w),
-        .a_inf(a_inf_w),
-        .b_inf(b_inf_w),
-        .a_nan(a_nan_w),
-        .b_nan(b_nan_w),
-        .result_sign(special_sign_w),
-        .result_is_nan(special_nan_w),
-        .result_is_inf(special_inf_w),
-        .result_is_zero(special_zero_w)
-    );
+fp_mult_mul_exp u_mul_exp (
+    .exp_a(s1_exp_a),
+    .exp_b(s1_exp_b),
+    .sig_a(s1_sig_a),
+    .sig_b(s1_sig_b),
+    .sub_a(s1_sub_a),
+    .sub_b(s1_sub_b),
+    .product(s2_product_c),
+    .exp_sum(s2_exp_c)
+);
 
-    /*
-     * Stage 1 registers: unpacked operands and special flags
-     */
-    reg s1_valid;
-    reg s1_sign;
-    reg s1_is_nan;
-    reg s1_is_inf;
-    reg s1_is_zero;
-    reg [23:0] s1_sig_a;
-    reg [23:0] s1_sig_b;
-    reg signed [12:0] s1_exp_a;
-    reg signed [12:0] s1_exp_b;
+reg s2_sign;
+reg [47:0] s2_product;
+reg signed [9:0] s2_exp;
+reg s2_zero_a, s2_zero_b;
+reg s2_inf_a, s2_inf_b;
+reg s2_nan_a, s2_nan_b;
 
-    /*
-     * Stage 2 combinational: significand multiply and exponent addition
-     */
-    wire [47:0] product_w;
-    wire signed [12:0] exp_sum_w;
+wire [23:0] s3_sig_c;
+wire s3_guard_c;
+wire s3_round_c;
+wire s3_sticky_c;
+wire signed [9:0] s3_exp_c;
 
-    fp_mul_exp u_mul_exp (
-        .a_significand(s1_sig_a),
-        .b_significand(s1_sig_b),
-        .a_exponent(s1_exp_a),
-        .b_exponent(s1_exp_b),
-        .product(product_w),
-        .exponent_sum(exp_sum_w)
-    );
+fp_mult_normalize u_normalize (
+    .product(s2_product),
+    .exp_in(s2_exp),
+    .sig_norm(s3_sig_c),
+    .guard_bit(s3_guard_c),
+    .round_bit(s3_round_c),
+    .sticky_bit(s3_sticky_c),
+    .exp_norm(s3_exp_c)
+);
 
-    /*
-     * Stage 2 registers
-     */
-    reg s2_valid;
-    reg s2_sign;
-    reg s2_is_nan;
-    reg s2_is_inf;
-    reg s2_is_zero;
-    reg [47:0] s2_product;
-    reg signed [12:0] s2_exp_sum;
+reg s3_sign;
+reg [23:0] s3_sig;
+reg s3_guard, s3_round, s3_sticky;
+reg signed [9:0] s3_exp;
+reg s3_zero_a, s3_zero_b;
+reg s3_inf_a, s3_inf_b;
+reg s3_nan_a, s3_nan_b;
 
-    /*
-     * Stage 3 combinational: normalization
-     */
-    wire [23:0] norm_sig_w;
-    wire signed [12:0] norm_exp_w;
-    wire guard_w;
-    wire round_w;
-    wire sticky_w;
+wire [23:0] s4_sig_c;
+wire signed [9:0] s4_exp_c;
 
-    fp_normalize u_normalize (
-        .product(s2_product),
-        .exponent_sum(s2_exp_sum),
-        .significand_norm(norm_sig_w),
-        .exponent_norm(norm_exp_w),
-        .guard_bit(guard_w),
-        .round_bit(round_w),
-        .sticky_bit(sticky_w)
-    );
+fp_mult_round_rne u_round (
+    .sig_in(s3_sig),
+    .guard_bit(s3_guard),
+    .round_bit(s3_round),
+    .sticky_bit(s3_sticky),
+    .exp_in(s3_exp),
+    .sig_rounded(s4_sig_c),
+    .exp_rounded(s4_exp_c)
+);
 
-    /*
-     * Stage 3 registers
-     */
-    reg s3_valid;
-    reg s3_sign;
-    reg s3_is_nan;
-    reg s3_is_inf;
-    reg s3_is_zero;
-    reg [23:0] s3_sig_norm;
-    reg signed [12:0] s3_exp_norm;
-    reg s3_guard;
-    reg s3_round;
-    reg s3_sticky;
+reg s4_sign;
+reg [23:0] s4_sig;
+reg signed [9:0] s4_exp;
+reg s4_zero_a, s4_zero_b;
+reg s4_inf_a, s4_inf_b;
+reg s4_nan_a, s4_nan_b;
 
-    /*
-     * Stage 4 combinational: round-to-nearest-even
-     */
-    wire [23:0] rounded_sig_w;
-    wire signed [12:0] rounded_exp_w;
+wire [31:0] s5_result_c;
 
-    fp_round_nearest_even u_round (
-        .significand_norm(s3_sig_norm),
-        .exponent_norm(s3_exp_norm),
-        .guard_bit(s3_guard),
-        .round_bit(s3_round),
-        .sticky_bit(s3_sticky),
-        .significand_rounded(rounded_sig_w),
-        .exponent_rounded(rounded_exp_w)
-    );
+fp_mult_pack_special u_pack (
+    .sign(s4_sign),
+    .sig(s4_sig),
+    .exp_in(s4_exp),
+    .zero_a(s4_zero_a),
+    .zero_b(s4_zero_b),
+    .inf_a(s4_inf_a),
+    .inf_b(s4_inf_b),
+    .nan_a(s4_nan_a),
+    .nan_b(s4_nan_b),
+    .result(s5_result_c)
+);
 
-    /*
-     * Stage 4 registers
-     */
-    reg s4_valid;
-    reg s4_sign;
-    reg s4_is_nan;
-    reg s4_is_inf;
-    reg s4_is_zero;
-    reg [23:0] s4_sig_rounded;
-    reg signed [12:0] s4_exp_rounded;
+reg [31:0] result_r;
+reg [LATENCY-1:0] valid_pipe;
 
-    /*
-     * Stage 5 combinational pack
-     */
-    wire [31:0] packed_result_w;
+assign result = result_r;
+assign valid_out = valid_pipe[LATENCY-1];
 
-    fp_pack_result u_pack (
-        .sign(s4_sign),
-        .is_nan(s4_is_nan),
-        .is_inf(s4_is_inf),
-        .is_zero(s4_is_zero),
-        .significand_rounded(s4_sig_rounded),
-        .exponent_rounded(s4_exp_rounded),
-        .result(packed_result_w)
-    );
+always @(posedge clk) begin
+    if (rst) begin
+        valid_pipe <= {LATENCY{1'b0}};
+        result_r <= 32'b0;
 
-    always @(posedge clk) begin
-        if (rst) begin
-            s1_valid <= 1'b0;
-            s1_sign <= 1'b0;
-            s1_is_nan <= 1'b0;
-            s1_is_inf <= 1'b0;
-            s1_is_zero <= 1'b0;
-            s1_sig_a <= 24'd0;
-            s1_sig_b <= 24'd0;
-            s1_exp_a <= 13'sd0;
-            s1_exp_b <= 13'sd0;
+        s1_sign <= 1'b0;
+        s1_exp_a <= 8'b0;
+        s1_exp_b <= 8'b0;
+        s1_sig_a <= 24'b0;
+        s1_sig_b <= 24'b0;
+        s1_zero_a <= 1'b0;
+        s1_zero_b <= 1'b0;
+        s1_inf_a <= 1'b0;
+        s1_inf_b <= 1'b0;
+        s1_nan_a <= 1'b0;
+        s1_nan_b <= 1'b0;
+        s1_sub_a <= 1'b0;
+        s1_sub_b <= 1'b0;
 
-            s2_valid <= 1'b0;
-            s2_sign <= 1'b0;
-            s2_is_nan <= 1'b0;
-            s2_is_inf <= 1'b0;
-            s2_is_zero <= 1'b0;
-            s2_product <= 48'd0;
-            s2_exp_sum <= 13'sd0;
+        s2_sign <= 1'b0;
+        s2_product <= 48'b0;
+        s2_exp <= 10'sd0;
+        s2_zero_a <= 1'b0;
+        s2_zero_b <= 1'b0;
+        s2_inf_a <= 1'b0;
+        s2_inf_b <= 1'b0;
+        s2_nan_a <= 1'b0;
+        s2_nan_b <= 1'b0;
 
-            s3_valid <= 1'b0;
-            s3_sign <= 1'b0;
-            s3_is_nan <= 1'b0;
-            s3_is_inf <= 1'b0;
-            s3_is_zero <= 1'b0;
-            s3_sig_norm <= 24'd0;
-            s3_exp_norm <= 13'sd0;
-            s3_guard <= 1'b0;
-            s3_round <= 1'b0;
-            s3_sticky <= 1'b0;
+        s3_sign <= 1'b0;
+        s3_sig <= 24'b0;
+        s3_guard <= 1'b0;
+        s3_round <= 1'b0;
+        s3_sticky <= 1'b0;
+        s3_exp <= 10'sd0;
+        s3_zero_a <= 1'b0;
+        s3_zero_b <= 1'b0;
+        s3_inf_a <= 1'b0;
+        s3_inf_b <= 1'b0;
+        s3_nan_a <= 1'b0;
+        s3_nan_b <= 1'b0;
 
-            s4_valid <= 1'b0;
-            s4_sign <= 1'b0;
-            s4_is_nan <= 1'b0;
-            s4_is_inf <= 1'b0;
-            s4_is_zero <= 1'b0;
-            s4_sig_rounded <= 24'd0;
-            s4_exp_rounded <= 13'sd0;
+        s4_sign <= 1'b0;
+        s4_sig <= 24'b0;
+        s4_exp <= 10'sd0;
+        s4_zero_a <= 1'b0;
+        s4_zero_b <= 1'b0;
+        s4_inf_a <= 1'b0;
+        s4_inf_b <= 1'b0;
+        s4_nan_a <= 1'b0;
+        s4_nan_b <= 1'b0;
+    end else begin
+        valid_pipe <= {valid_pipe[LATENCY-2:0], valid_in};
 
-            result <= 32'd0;
-            valid_out <= 1'b0;
-        end else begin
-            /*
-             * Stage 1 capture
-             */
-            s1_valid <= valid_in;
-            s1_sign <= special_sign_w;
-            s1_is_nan <= special_nan_w;
-            s1_is_inf <= special_inf_w;
-            s1_is_zero <= special_zero_w;
-            s1_sig_a <= a_sig_w;
-            s1_sig_b <= b_sig_w;
-            s1_exp_a <= a_unbiased_exp_w;
-            s1_exp_b <= b_unbiased_exp_w;
+        s1_sign <= s1_sign_c;
+        s1_exp_a <= s1_exp_a_c;
+        s1_exp_b <= s1_exp_b_c;
+        s1_sig_a <= s1_sig_a_c;
+        s1_sig_b <= s1_sig_b_c;
+        s1_zero_a <= s1_zero_a_c;
+        s1_zero_b <= s1_zero_b_c;
+        s1_inf_a <= s1_inf_a_c;
+        s1_inf_b <= s1_inf_b_c;
+        s1_nan_a <= s1_nan_a_c;
+        s1_nan_b <= s1_nan_b_c;
+        s1_sub_a <= s1_sub_a_c;
+        s1_sub_b <= s1_sub_b_c;
 
-            /*
-             * Stage 2 capture
-             */
-            s2_valid <= s1_valid;
-            s2_sign <= s1_sign;
-            s2_is_nan <= s1_is_nan;
-            s2_is_inf <= s1_is_inf;
-            s2_is_zero <= s1_is_zero;
-            s2_product <= product_w;
-            s2_exp_sum <= exp_sum_w;
+        s2_sign <= s1_sign;
+        s2_product <= s2_product_c;
+        s2_exp <= s2_exp_c;
+        s2_zero_a <= s1_zero_a;
+        s2_zero_b <= s1_zero_b;
+        s2_inf_a <= s1_inf_a;
+        s2_inf_b <= s1_inf_b;
+        s2_nan_a <= s1_nan_a;
+        s2_nan_b <= s1_nan_b;
 
-            /*
-             * Stage 3 capture
-             */
-            s3_valid <= s2_valid;
-            s3_sign <= s2_sign;
-            s3_is_nan <= s2_is_nan;
-            s3_is_inf <= s2_is_inf;
-            s3_is_zero <= s2_is_zero;
-            s3_sig_norm <= norm_sig_w;
-            s3_exp_norm <= norm_exp_w;
-            s3_guard <= guard_w;
-            s3_round <= round_w;
-            s3_sticky <= sticky_w;
+        s3_sign <= s2_sign;
+        s3_sig <= s3_sig_c;
+        s3_guard <= s3_guard_c;
+        s3_round <= s3_round_c;
+        s3_sticky <= s3_sticky_c;
+        s3_exp <= s3_exp_c;
+        s3_zero_a <= s2_zero_a;
+        s3_zero_b <= s2_zero_b;
+        s3_inf_a <= s2_inf_a;
+        s3_inf_b <= s2_inf_b;
+        s3_nan_a <= s2_nan_a;
+        s3_nan_b <= s2_nan_b;
 
-            /*
-             * Stage 4 capture
-             */
-            s4_valid <= s3_valid;
-            s4_sign <= s3_sign;
-            s4_is_nan <= s3_is_nan;
-            s4_is_inf <= s3_is_inf;
-            s4_is_zero <= s3_is_zero;
-            s4_sig_rounded <= rounded_sig_w;
-            s4_exp_rounded <= rounded_exp_w;
+        s4_sign <= s3_sign;
+        s4_sig <= s4_sig_c;
+        s4_exp <= s4_exp_c;
+        s4_zero_a <= s3_zero_a;
+        s4_zero_b <= s3_zero_b;
+        s4_inf_a <= s3_inf_a;
+        s4_inf_b <= s3_inf_b;
+        s4_nan_a <= s3_nan_a;
+        s4_nan_b <= s3_nan_b;
 
-            /*
-             * Stage 5 output capture.
-             * Hold result when invalid so a consumer/testbench may sample it
-             * on the clock following valid_out.
-             */
-            valid_out <= s4_valid;
-            if (s4_valid) begin
-                result <= packed_result_w;
-            end
-        end
+        result_r <= s5_result_c;
     end
+end
 
 endmodule

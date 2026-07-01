@@ -1,10 +1,11 @@
 {
-  "top_source_file": "verilog/fp_add_unpack.v",
+  "top_source_file": "verilog/fp_unpack.v",
   "sub_modules": {
-    "fp_add_unpack": "Combinational IEEE-754 operand unpacker. Extracts signs, effective exponents, significands, applies add/sub sign inversion to operand B, and resolves NaN/INF special cases early.",
-    "fp_add_align": "Combinational exponent alignment stage. Extends significands with guard/round/sticky bits and right-shifts the smaller operand using jammed sticky-bit logic.",
-    "fp_add_core": "Combinational aligned significand add/subtract stage. Selects arithmetic operation from effective operand signs, computes raw magnitude, result sign, and exact-zero detection.",
-    "fp_add_normalize": "Combinational normalization stage. Handles carry-out right normalization, cancellation left normalization, subnormal boundary behavior, and forwards special-case metadata.",
-    "fp_add_round_pack": "Combinational round and pack stage. Implements IEEE-754 round-to-nearest-even using guard/round/sticky bits, handles overflow to infinity, subnormal promotion, zero packing, and final 32-bit result assembly."
+    "fp_unpack": "Unpacks IEEE-754 operands, applies subtraction sign inversion to operand B, builds extended significands, and detects zero/inf/NaN classes.",
+    "fp_special_cases": "Handles NaN propagation, infinity propagation, invalid infinity cancellation, and signed zero canonicalization.",
+    "fp_align": "Compares operand magnitudes, selects the larger significand, aligns the smaller significand with sticky-bit preservation, and forwards signs.",
+    "fp_addsub": "Adds or subtracts aligned significands according to effective signs and produces an unsigned magnitude with result sign.",
+    "fp_normalize": "Normalizes the post-add/sub magnitude, adjusts exponent, detects exact zero, and prepares guard/round/sticky bits.",
+    "fp_round_pack": "Applies round-to-nearest-even, detects overflow/underflow, and packs the IEEE-754 single-precision result."
   }
 }

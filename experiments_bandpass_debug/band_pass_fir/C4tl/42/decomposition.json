@@ -1,0 +1,9 @@
+{
+  "top_source_file": "verilog/bandpass_fir_tapline.v",
+  "sub_modules": {
+    "bandpass_fir_tapline": "Combinational next-state tap delay-line builder for valid input samples.",
+    "bandpass_fir_coeff_rom": "Combinational hard-coded 101-tap signed coefficient ROM with exact benchmark coefficients.",
+    "bandpass_fir_mac": "Combinational signed multiply-accumulate over all FIR taps using a 64-bit accumulator.",
+    "bandpass_fir_scaler": "Combinational fixed-point output scaler using arithmetic right shift by 15 bits."
+  }
+}

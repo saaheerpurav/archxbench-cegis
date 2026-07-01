@@ -1,0 +1,72 @@
+{
+  "condition": "C4tl",
+  "llm_calls": 7,
+  "best_passes": 33,
+  "total_tests": 33,
+  "solved": true,
+  "reference_oracle_valid": true,
+  "decomp_modules": [
+    "fft16_butterfly",
+    "fft16_twiddle_rom",
+    "fft16_index_gen",
+    "fft16_bit_reverse"
+  ],
+  "module_repair_rounds": {
+    "fft16_butterfly": 1,
+    "fft16_twiddle_rom": 0,
+    "fft16_index_gen": 0,
+    "fft16_bit_reverse": 0
+  },
+  "localization_history": [
+    {
+      "round": 1,
+      "full_passes": 9,
+      "full_total": 33,
+      "focus_module": "fft16_butterfly",
+      "isolated_scores": [
+        {
+          "module": "fft16_butterfly",
+          "passes": 9,
+          "total": 33,
+          "rate": 0.2727272727272727,
+          "kind": "semantic",
+          "compile_error": "",
+          "stdout_excerpt": "[FAIL] Test 1 real: expected -32, got -51\n[FAIL] Test 1 imag: expected -60, got -42\n[FAIL] Test 2 real: expected -13, got -46\n[FAIL] Test 2 imag: expected -51, got -26\n[FAIL] Test 3 real: expected 3, got -12\n[FAIL] Test 3 imag: expected -12, got -8\n[FAIL] Test 4 real: expected 5, got -6\n[FAIL] Test 4 imag: expected -8, got -4\n[FAIL] Test 5 real: expected 5, got -6\n[FAIL] Test 6 real: expected 6, got -6\n[FAIL] Test 7 real: expected 6, got -7\n[FAIL] Test 8 real: expected 6, got -6\n[FAIL] Test 9 real: expected 6, got -7\n[FAIL] Test 10 real: expected 6, got -6\n[FAIL] Test 11 real: expected 5, got -6"
+        },
+        {
+          "module": "fft16_twiddle_rom",
+          "passes": 33,
+          "total": 33,
+          "rate": 1.0,
+          "kind": "pass",
+          "compile_error": "",
+          "stdout_excerpt": "No specific failure lines found in output."
+        },
+        {
+          "module": "fft16_index_gen",
+          "passes": 33,
+          "total": 33,
+          "rate": 1.0,
+          "kind": "pass",
+          "compile_error": "",
+          "stdout_excerpt": "No specific failure lines found in output."
+        },
+        {
+          "module": "fft16_bit_reverse",
+          "passes": 33,
+          "total": 33,
+          "rate": 1.0,
+          "kind": "pass",
+          "compile_error": "",
+          "stdout_excerpt": "No specific failure lines found in output."
+        }
+      ]
+    }
+  ],
+  "design": "fft_16pt_iterative",
+  "model": "codex-gpt-5.5",
+  "seed": 789,
+  "wall_seconds": 341.1,
+  "total_input_tokens": 0,
+  "total_output_tokens": 0
+}

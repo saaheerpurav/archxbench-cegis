@@ -1,10 +1,9 @@
 {
-  "top_source_file": "verilog/fft16_bit_reverse_loader.v",
+  "top_source_file": "verilog/fft16_bit_reverse.v",
   "sub_modules": {
-    "fft16_bit_reverse_loader": "Combinational input loader that sign-extends DATA_W samples to internal/output width and places them into bit-reversed memory order for iterative DIT FFT processing.",
-    "fft16_addr_gen": "Combinational radix-2 stage address generator that produces butterfly p/q memory addresses and the twiddle-table index from the current stage and butterfly counter.",
-    "fft16_twiddle_rom": "Combinational Q1.15 twiddle coefficient ROM for N=16 using the specified cosine and sine encoding convention.",
-    "fft16_butterfly": "Combinational fixed-point complex radix-2 butterfly with Q1.15 rounded twiddle multiplication and no per-stage scaling.",
-    "fft16_output_scale": "Combinational output formatter that passes FFT results unscaled and applies 1/N arithmetic normalization for IFFT mode."
+    "fft16_bit_reverse": "Combinational 4-bit bit-reversal mapper used to load DIT input samples into bit-reversed memory order.",
+    "fft16_twiddle_rom": "Combinational Q1.15 twiddle coefficient ROM for N=16 cosine and sine values.",
+    "fft16_butterfly": "Combinational fixed-point radix-2 complex butterfly with FFT and IFFT twiddle sign support.",
+    "fft16_output_scale": "Combinational output normalization block that passes FFT results unchanged and divides IFFT results by 16."
   }
 }

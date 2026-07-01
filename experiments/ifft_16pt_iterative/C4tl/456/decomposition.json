@@ -1,0 +1,10 @@
+{
+  "top_source_file": "verilog/fft16_bit_reverse_addr.v",
+  "sub_modules": {
+    "fft16_bit_reverse_addr": "Combinational 4-bit bit-reversal address mapper for DIT input ordering.",
+    "fft16_pair_index": "Combinational stage and butterfly counter decoder producing p, q, and twiddle indices for the 16-point iterative radix-2 schedule.",
+    "fft16_twiddle_rom": "Combinational Q1.15 twiddle coefficient ROM using the required positive sine convention for IFFT.",
+    "fft16_ifft_butterfly": "Combinational fixed-point radix-2 IFFT butterfly with rounded Q1.15 complex rotation.",
+    "fft16_ifft_output_scale": "Combinational final IFFT normalization by arithmetic right shift of 4 bits."
+  }
+}

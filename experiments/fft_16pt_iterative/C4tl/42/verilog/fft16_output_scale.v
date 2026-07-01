@@ -1,43 +1,18 @@
 `timescale 1ns/1ps
 
 module fft16_output_scale #(
-    parameter N = 16,
-    parameter OUT_W = 16
+    parameter DATA_W = 12,
+    parameter GAIN_W = 4
 ) (
-    input  mode,
-    input  signed [OUT_W-1:0] data_real_mem [0:N-1],
-    input  signed [OUT_W-1:0] data_imag_mem [0:N-1],
-    output signed [OUT_W-1:0] data_real_out [0:N-1],
-    output signed [OUT_W-1:0] data_imag_out [0:N-1]
+    input signed [DATA_W+GAIN_W-1:0] in_real,
+    input signed [DATA_W+GAIN_W-1:0] in_imag,
+    input ifft_mode,
+    output signed [DATA_W+GAIN_W-1:0] out_real,
+    output signed [DATA_W+GAIN_W-1:0] out_imag
 );
+    localparam OUT_W = DATA_W + GAIN_W;
 
-    function integer clog2;
-        input integer value;
-        integer v;
-        begin
-            v = value - 1;
-            clog2 = 0;
-            while (v > 0) begin
-                v = v >> 1;
-                clog2 = clog2 + 1;
-            end
-        end
-    endfunction
-
-    localparam integer SCALE_SHIFT = clog2(N);
-
-    genvar gi;
-    generate
-        for (gi = 0; gi < N; gi = gi + 1) begin : g_output_scale
-            wire signed [OUT_W-1:0] real_scaled;
-            wire signed [OUT_W-1:0] imag_scaled;
-
-            assign real_scaled = data_real_mem[gi] >>> SCALE_SHIFT;
-            assign imag_scaled = data_imag_mem[gi] >>> SCALE_SHIFT;
-
-            assign data_real_out[gi] = mode ? real_scaled : data_real_mem[gi];
-            assign data_imag_out[gi] = mode ? imag_scaled : data_imag_mem[gi];
-        end
-    endgenerate
+    assign out_real = ifft_mode ? (in_real >>> GAIN_W) : in_real;
+    assign out_imag = ifft_mode ? (in_imag >>> GAIN_W) : in_imag;
 
 endmodule

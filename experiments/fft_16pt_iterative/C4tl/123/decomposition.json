@@ -1,0 +1,9 @@
+{
+  "top_source_file": "verilog/fft16_butterfly.v",
+  "sub_modules": {
+    "fft16_butterfly": "Combinational fixed-point radix-2 complex butterfly with FFT/IFFT twiddle sign selection and Q1.15 rounded multiplication.",
+    "fft16_twiddle_rom": "Combinational Q1.15 twiddle coefficient lookup table for N=16 using the required cosine and sine convention.",
+    "fft16_addr_gen": "Combinational stage and butterfly index decoder that generates memory addresses and twiddle indices for the iterative controller.",
+    "fft16_bit_reverse_loader": "Combinational loader that maps natural-order inputs into bit-reversed memory order for radix-2 DIT FFT processing."
+  }
+}

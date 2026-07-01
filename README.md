@@ -15,7 +15,14 @@ Autonomous Verilog RTL generation using Counter-Example Guided Inductive Synthes
 
 ## Results
 
-Current canonical C4i results use GPT-5.5 with seeds `42`, `123`, and `456` on the matched comparison set. Broader multi-model sweeps and exploratory C4m/C4a runs remain baseline/context rather than the main C4i claim.
+Current canonical result state is tracked in [`results/CURRENT_RUN_MATRIX.md`](results/CURRENT_RUN_MATRIX.md). The short version:
+
+- C1 and C2g baseline sweeps are complete for all 32 valid designs, 3 models, seeds `42`, `123`, and `456`.
+- C4i matched GPT-5.5 results exist for selected L3/L5 designs with seeds `42`, `123`, and `456`.
+- C4tl L4 results have been imported from the older `openevolve` workspace into this repo, including generated RTL artifacts. `fp_mult_pipeline`, `fp_adder_pipeline`, `fft_16pt_iterative`, and `ifft_16pt_iterative` are solved on seeds `42`, `123`, `456`, `789`, and `1024`.
+- FIR-family designs were already run and failed; they are benchmark/spec-contract problem cases, not missing run cells.
+
+Broader multi-model sweeps and exploratory C4m/C4a runs remain baseline/context rather than the main method claim.
 
 ### Legacy Seed-42 C4i/C4tl Rows (not canonical)
 
@@ -37,18 +44,31 @@ The table below is retained only as historical seed-42 context. Do not use it as
 
 See [`results/C4I_MATCHED_RESULTS.md`](results/C4I_MATCHED_RESULTS.md) for per-seed details and artifact paths.
 
-| Design | Level | C4i | C2/C2g GPT-5.5 Baseline | Verification |
-|--------|-------|-----|--------------------------|--------------|
-| `fp_multiplier` | L3 | 3/3 solved, all `10/10` | 0/3 solved, best `7/10` | official self-checking testbench |
-| `gauss_siedel` | L3 | 3/3 solved, all `50/50` | 0/3 solved, all `45/50` | official self-checking testbench |
-| `newton_raphson_sqrt` | L3 | 3/3 solved, all `50/50` | 0/3 solved for GPT-5.5 | official self-checking testbench |
-| `fp_adder` | L3 | 3/3 solved, all `36/36` | 1/3 solved on matched seeds | official self-checking testbench |
-| `gradient_descent` | L3 | 3/3 solved, all `50/50` | 0/3 solved, no passing simulations | official self-checking testbench |
-| `harris_corner_detection` | L5 | 3/3 solved, all `16384/16384` | seed 42 solved, slower | external golden JSON |
+| Design | Level | C4i | C2g GPT-5.5 Baseline | Verification | Interpretation |
+|--------|-------|-----|----------------------|--------------|----------------|
+| `fp_multiplier` | L3 | 3/3 solved, all `10/10` | 3/3 solved | official self-checking testbench | C4i also solves; not exclusive |
+| `gauss_siedel` | L3 | 3/3 solved, all `50/50` | 0/3 solved, all `47/50` | official self-checking testbench | C4i win |
+| `newton_raphson_sqrt` | L3 | 3/3 solved, all `50/50` | 3/3 solved | official self-checking testbench | C4i also solves; not exclusive |
+| `fp_adder` | L3 | 3/3 solved, all `36/36` | 3/3 solved | official self-checking testbench | C4i also solves; not exclusive |
+| `gradient_descent` | L3 | 3/3 solved, all `50/50` | 0/3 solved, no passing simulations | official self-checking testbench | C4i win |
+| `harris_corner_detection` | L5 | 3/3 solved, all `16384/16384` | 3/3 solved | external golden JSON | both solve; compare cost/trace |
 
 Negative matched result: `newton_raphson_polynomial` remains unsolved. C4i scores `17/100`, `17/100`, and `89/100` across seeds `42`, `123`, and `456`; the best monolithic C2g near-miss is `97/100`.
 
 `golden_correct/golden_total = 0/0` for the L3 rows because those benchmarks do not have separate golden-output JSON files. They are still verified by the official self-checking testbenches, which contain embedded expected outputs or compute expected values internally.
+
+### Imported C4tl L4 Results (Codex GPT-5.5, seeds 42/123/456/789/1024)
+
+These artifacts were originally generated in the older `openevolve` workspace and have been imported into this repo under `experiments/{design}/C4tl/{seed}/` with `result.json`, `decomposition.json`, and generated `verilog/`.
+
+| Design | Level | C4tl Result | Artifact Paths |
+|--------|-------|-------------|----------------|
+| `fp_mult_pipeline` | L4 | 5/5 solved, all `31/31` | `experiments/fp_mult_pipeline/C4tl/{42,123,456,789,1024}/` |
+| `fp_adder_pipeline` | L4 | 5/5 solved, all `23/23` | `experiments/fp_adder_pipeline/C4tl/{42,123,456,789,1024}/` |
+| `fft_16pt_iterative` | L4 | 5/5 solved, all `33/33` | `experiments/fft_16pt_iterative/C4tl/{42,123,456,789,1024}/` |
+| `ifft_16pt_iterative` | L4 | 5/5 solved, all `33/33` | `experiments/ifft_16pt_iterative/C4tl/{42,123,456,789,1024}/` |
+
+The imported metric snapshots are preserved as `results/metrics_c4tl_l4_imported_seed42.json` and `results/metrics_c4tl_l4_imported_123_456_789_1024.json`.
 
 ### Baseline Comparison (C1 vs C2g, GPT-5.5, 3 seeds)
 
@@ -104,6 +124,7 @@ archxbench-cegis/
 â”‚   â””â”€â”€ logs/
 â”œâ”€â”€ experiments_c4a_debug/          # Exploratory adaptive CEGIS runs (not main claims)
 â”œâ”€â”€ experiments_c4m_debug/          # Exploratory memory-guided CEGIS runs (not main claims)
+â”œâ”€â”€ experiments_bandpass_debug/     # Failed band_pass_fir C4i/C4tl seed-42 debug run
 â”œâ”€â”€ experiments_conv3d_debug/       # Failed conv_3d C2g/C4tl seed-42 debug run
 â”œâ”€â”€ experiments_quantized_debug/    # Failed quantized_matmul C2g/C4tl seed-42 debug run
 â”œâ”€â”€ results/                        # Metrics and summary tables
@@ -188,6 +209,7 @@ These runs are included for transparency but are not main paper claims:
 |--------|-----------|------|--------|--------|
 | `newton_raphson_polynomial` | C4m | 456 | failed, `86/100`; rerun in debug folder scored `17/100` | `experiments/newton_raphson_polynomial/C4m/`, `experiments_c4m_debug/` |
 | `newton_raphson_polynomial` | C4a | 456 | failed, `97/100` | `experiments_c4a_debug/` |
+| `band_pass_fir` | C4i/C4tl | 42 | failed; C4tl reached `3/1001` | `experiments_bandpass_debug/` |
 | `dct_idct_8pt_pipelined` | C4a | 42 | failed, `0/1` | `experiments_c4a_debug/` |
 | `fft_16pt_iterative` | C4a | 42 | failed, `30/33` | `experiments_c4a_debug/` |
 | `quantized_matmul` | C2g/C4tl | 42 | both failed, `0/0` | `experiments_quantized_debug/` |

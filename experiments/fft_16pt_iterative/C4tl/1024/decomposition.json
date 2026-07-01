@@ -1,0 +1,10 @@
+{
+  "top_source_file": "verilog/fft16_index_gen.v",
+  "sub_modules": {
+    "fft16_index_gen": "Combinational radix-2 DIT stage controller address generator for p, q, and twiddle indices.",
+    "fft16_twiddle_rom": "Combinational Q1.15 twiddle coefficient ROM for N=16 cosine and positive sine table entries.",
+    "fft16_twiddle_mode": "Combinational mode adapter that conjugates the sine component for IFFT operation.",
+    "fft16_butterfly": "Combinational fixed-point complex radix-2 butterfly with rounded Q1.15 twiddle multiplication.",
+    "fft16_output_scale": "Combinational output normalizer that divides IFFT results by N=16 and leaves FFT results unscaled."
+  }
+}

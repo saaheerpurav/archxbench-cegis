@@ -1,0 +1,11 @@
+{
+  "top_source_file": "verilog/fp_mult_unpack.v",
+  "sub_modules": {
+    "fp_mult_unpack": "Combinational IEEE-754 operand unpacking, significand construction, sign generation, and zero/infinity/NaN detection.",
+    "fp_mult_special": "Combinational special-case priority classification for NaN, invalid zero-times-infinity, infinity, and signed zero results.",
+    "fp_mult_mul_exp": "Combinational 24x24 significand multiply and biased exponent addition with subnormal effective exponent handling.",
+    "fp_mult_normalize": "Combinational product normalization with guard, round, and sticky bit extraction.",
+    "fp_mult_round": "Combinational round-to-nearest-even for the normalized significand and exponent carry adjustment.",
+    "fp_mult_pack": "Combinational IEEE-754 result packing with NaN, infinity, zero, overflow, normal, and flush-to-zero underflow handling."
+  }
+}

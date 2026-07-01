@@ -1,0 +1,10 @@
+{
+  "top_source_file": "verilog/fp_adder_unpack.v",
+  "sub_modules": {
+    "fp_adder_unpack": "Extracts IEEE-754 sign, exponent, fraction, significand, and special classification bits.",
+    "fp_adder_special": "Handles NaN, infinity, zero, signed-zero, and effective subtraction sign cases.",
+    "fp_adder_align": "Compares operand magnitudes, selects the larger significand, aligns the smaller significand, and computes the effective add/sub operation.",
+    "fp_adder_addsub": "Adds or subtracts aligned significands and detects exact cancellation to zero.",
+    "fp_adder_normalize_round": "Normalizes the arithmetic result, applies round-to-nearest-even, detects overflow/underflow, and packs IEEE-754 output."
+  }
+}

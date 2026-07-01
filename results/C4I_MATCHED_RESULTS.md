@@ -4,7 +4,7 @@ Date: 2026-07-01
 
 ## Summary
 
-This table is the current canonical evidence for Investigative CEGIS (`C4i`) against monolithic CEGIS (`C2`/`C2g`) on the key designs where decomposition changes the result.
+This table records the current canonical C4i matched-seed evidence. It separates designs where C4i is an actual win over monolithic C2g from designs where C4i also solves but is not exclusive.
 
 All C4i rows use:
 - model: `gpt-5.5`
@@ -14,15 +14,15 @@ All C4i rows use:
 
 ## Matched Comparison
 
-| Design | Level | C4i GPT-5.5 | C2/C2g GPT-5.5 Baseline | Verification |
-|--------|-------|-------------|--------------------------|--------------|
-| `fp_multiplier` | L3 | 3/3 solved, all `10/10` | 0/3 solved, best `7/10` | official self-checking testbench |
-| `gauss_siedel` | L3 | 3/3 solved, all `50/50` | 0/3 solved, all `45/50` | official self-checking testbench |
-| `newton_raphson_sqrt` | L3 | 3/3 solved, all `50/50` | 0/3 solved for GPT-5.5 | official self-checking testbench |
-| `fp_adder` | L3 | 3/3 solved, all `36/36` | 1/3 solved on seeds `42,123,456` | official self-checking testbench |
-| `gradient_descent` | L3 | 3/3 solved, all `50/50` | 0/3 solved, no passing simulations | official self-checking testbench |
-| `harris_corner_detection` | L5 | 3/3 solved, all `16384/16384` | seed `42` solved, slower | external golden JSON |
-| `newton_raphson_polynomial` | L3 | 0/3 solved; best `89/100` | 0/3 solved; best `97/100` | official self-checking testbench |
+| Design | Level | C4i GPT-5.5 | C2g GPT-5.5 Baseline | Verification | Interpretation |
+|--------|-------|-------------|----------------------|--------------|----------------|
+| `fp_multiplier` | L3 | 3/3 solved, all `10/10` | 3/3 solved, all `10/10` | official self-checking testbench | C4i also solves; not exclusive |
+| `gauss_siedel` | L3 | 3/3 solved, all `50/50` | 0/3 solved, all `47/50` | official self-checking testbench | C4i win |
+| `newton_raphson_sqrt` | L3 | 3/3 solved, all `50/50` | 3/3 solved, all `50/50` | official self-checking testbench | C4i also solves; not exclusive |
+| `fp_adder` | L3 | 3/3 solved, all `36/36` | 3/3 solved, all `36/36` | official self-checking testbench | C4i also solves; not exclusive |
+| `gradient_descent` | L3 | 3/3 solved, all `50/50` | 0/3 solved, no passing simulations | official self-checking testbench | C4i win |
+| `harris_corner_detection` | L5 | 3/3 solved, all `16384/16384` | 3/3 solved, all `16384/16384` | external golden JSON | both solve; compare cost/trace |
+| `newton_raphson_polynomial` | L3 | 0/3 solved; best `89/100` | 0/3 solved; best `97/100` | official self-checking testbench | negative result |
 
 ## C4i Per-Seed Details
 
@@ -96,14 +96,11 @@ python -m cegis.tdes.fpga.autonomous.run_aaai `
 
 ## Interpretation
 
-The strongest result is not just that C4i solves isolated cells. It solves multiple matched-seed cells where monolithic GPT-5.5 CEGIS reaches the round budget and stagnates:
+The strongest C4i wins in the current formal metrics are:
 
-- `fp_multiplier`: C4i `3/3`, C2 `0/3`.
 - `gauss_siedel`: C4i `3/3`, C2 `0/3`.
-- `newton_raphson_sqrt`: C4i `3/3`, C2 `0/3` for GPT-5.5.
-- `fp_adder`: C4i `3/3`, C2 `1/3` on the matched seeds.
 - `gradient_descent`: C4i `3/3`, C2g `0/3`.
 
-`newton_raphson_polynomial` remains unsolved. C4i improved over zero-shot but did not beat the monolithic C2g near-miss (`97/100`), so it is recorded as a negative result rather than a main claim.
+`fp_multiplier`, `fp_adder`, `newton_raphson_sqrt`, and `harris_corner_detection` are still useful as robustness/cost/trace examples, but they are not exclusive C4i wins because formal C2g GPT-5.5 also solves them. `newton_raphson_polynomial` remains unsolved. C4i improved over zero-shot but did not beat the monolithic C2g near-miss (`97/100`), so it is recorded as a negative result rather than a main claim.
 
-This supports the main mechanism claim: decomposition plus per-module investigative repair can escape monolithic repair failures on RTL synthesis tasks.
+This supports a narrower mechanism claim: decomposition plus per-module investigative repair can escape some monolithic repair failures, but the paper should not overclaim C4i superiority on every matched design.

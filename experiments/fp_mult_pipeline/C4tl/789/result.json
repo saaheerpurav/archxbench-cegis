@@ -1,0 +1,83 @@
+{
+  "condition": "C4tl",
+  "llm_calls": 7,
+  "best_passes": 31,
+  "total_tests": 31,
+  "solved": true,
+  "reference_oracle_valid": true,
+  "decomp_modules": [
+    "fp_mult_unpack",
+    "fp_mult_exp_mul",
+    "fp_mult_normalize",
+    "fp_mult_round_rne",
+    "fp_mult_pack_special"
+  ],
+  "module_repair_rounds": {
+    "fp_mult_unpack": 0,
+    "fp_mult_exp_mul": 1,
+    "fp_mult_normalize": 0,
+    "fp_mult_round_rne": 0,
+    "fp_mult_pack_special": 0
+  },
+  "localization_history": [
+    {
+      "round": 1,
+      "full_passes": 8,
+      "full_total": 30,
+      "focus_module": "fp_mult_exp_mul",
+      "isolated_scores": [
+        {
+          "module": "fp_mult_unpack",
+          "passes": 31,
+          "total": 31,
+          "rate": 1.0,
+          "kind": "pass",
+          "compile_error": "",
+          "stdout_excerpt": "No specific failure lines found in output."
+        },
+        {
+          "module": "fp_mult_exp_mul",
+          "passes": 8,
+          "total": 30,
+          "rate": 0.26666666666666666,
+          "kind": "semantic",
+          "compile_error": "",
+          "stdout_excerpt": "[FAIL] Test 1: Expected 0x40000000, Got 0x00800000\n[FAIL] Test 2: Expected 0x40c00000, Got 0x01400000\n[FAIL] Test 3: Expected 0x3e800000, Got 0x00000000\n[FAIL] Test 4: Expected 0x3f800000, Got 0x00000000\n[FAIL] Test 5: Expected 0xc0000000, Got 0x80800000\n[FAIL] Test 6: Expected 0x40000000, Got 0x00800000\n[FAIL] Test 7: Expected 0xc0000000, Got 0x80800000\n[FAIL] Test 8: Expected 0x3f800000, Got 0x00000000\n[FAIL] Test 9: Expected 0x42000000, Got 0x02800000\n[FAIL] Test 10: Expected 0x3f800000, Got 0x00000000\n[FAIL] Test 11: Expected 0x3f000000, Got 0x00000000\n[FAIL] Test 19: Expected 0x00800000, Got 0x00000000\n[FAIL] Test 20: Expected 0x7f800000, Got 0x7f000000\n[FAIL] Test 22: Expected 0x27800000, Got 0x00000000\n[FAIL] Test 23: Expected 0x3f2aaaab, Got 0x00000000"
+        },
+        {
+          "module": "fp_mult_normalize",
+          "passes": 31,
+          "total": 31,
+          "rate": 1.0,
+          "kind": "pass",
+          "compile_error": "",
+          "stdout_excerpt": "No specific failure lines found in output."
+        },
+        {
+          "module": "fp_mult_round_rne",
+          "passes": 31,
+          "total": 31,
+          "rate": 1.0,
+          "kind": "pass",
+          "compile_error": "",
+          "stdout_excerpt": "No specific failure lines found in output."
+        },
+        {
+          "module": "fp_mult_pack_special",
+          "passes": 31,
+          "total": 31,
+          "rate": 1.0,
+          "kind": "pass",
+          "compile_error": "",
+          "stdout_excerpt": "No specific failure lines found in output."
+        }
+      ]
+    }
+  ],
+  "design": "fp_mult_pipeline",
+  "model": "codex-gpt-5.5",
+  "seed": 789,
+  "wall_seconds": 324.5,
+  "total_input_tokens": 0,
+  "total_output_tokens": 0
+}

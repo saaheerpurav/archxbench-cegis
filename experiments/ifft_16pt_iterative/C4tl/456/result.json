@@ -1,0 +1,29 @@
+{
+  "condition": "C4tl",
+  "llm_calls": 6,
+  "best_passes": 33,
+  "total_tests": 33,
+  "solved": true,
+  "reference_oracle_valid": true,
+  "decomp_modules": [
+    "fft16_bit_reverse_addr",
+    "fft16_pair_index",
+    "fft16_twiddle_rom",
+    "fft16_ifft_butterfly",
+    "fft16_ifft_output_scale"
+  ],
+  "module_repair_rounds": {
+    "fft16_bit_reverse_addr": 0,
+    "fft16_pair_index": 0,
+    "fft16_twiddle_rom": 0,
+    "fft16_ifft_butterfly": 0,
+    "fft16_ifft_output_scale": 0
+  },
+  "localization_history": [],
+  "design": "ifft_16pt_iterative",
+  "model": "codex-gpt-5.5",
+  "seed": 456,
+  "wall_seconds": 287.9,
+  "total_input_tokens": 0,
+  "total_output_tokens": 0
+}

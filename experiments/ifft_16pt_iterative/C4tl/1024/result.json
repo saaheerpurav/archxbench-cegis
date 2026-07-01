@@ -1,0 +1,116 @@
+{
+  "condition": "C4tl",
+  "llm_calls": 8,
+  "best_passes": 33,
+  "total_tests": 33,
+  "solved": true,
+  "reference_oracle_valid": true,
+  "decomp_modules": [
+    "ifft16_bit_reverse_addr",
+    "ifft16_stage_addr_gen",
+    "ifft16_twiddle_rom",
+    "ifft16_butterfly"
+  ],
+  "module_repair_rounds": {
+    "ifft16_bit_reverse_addr": 0,
+    "ifft16_stage_addr_gen": 1,
+    "ifft16_twiddle_rom": 1,
+    "ifft16_butterfly": 0
+  },
+  "localization_history": [
+    {
+      "round": 1,
+      "full_passes": 0,
+      "full_total": 0,
+      "focus_module": "ifft16_twiddle_rom",
+      "isolated_scores": [
+        {
+          "module": "ifft16_bit_reverse_addr",
+          "passes": 33,
+          "total": 33,
+          "rate": 1.0,
+          "kind": "pass",
+          "compile_error": "",
+          "stdout_excerpt": "No specific failure lines found in output."
+        },
+        {
+          "module": "ifft16_stage_addr_gen",
+          "passes": 0,
+          "total": 33,
+          "rate": 0.0,
+          "kind": "semantic",
+          "compile_error": "",
+          "stdout_excerpt": "[FAIL] Test 0 real: expected 0, got -346\n[FAIL] Test 0 imag: expected 0, got 599\n[FAIL] Test 1 real: expected 6, got -31\n[FAIL] Test 1 imag: expected 0, got -1606\n[FAIL] Test 2 real: expected 11, got 161\n[FAIL] Test 2 imag: expected 0, got -1370\n[FAIL] Test 3 real: expected 12, got 1135\n[FAIL] Test 3 imag: expected 0, got 209\n[FAIL] Test 4 real: expected 10, got 1265\n[FAIL] Test 4 imag: expected 0, got 1196\n[FAIL] Test 5 real: expected 7, got 192\n[FAIL] Test 5 imag: expected 0, got 1604\n[FAIL] Test 6 real: expected 5, got -1650\n[FAIL] Test 6 imag: expected 0, got -1936\n[FAIL] Test 7 real: expected 4, got 1888"
+        },
+        {
+          "module": "ifft16_twiddle_rom",
+          "passes": 0,
+          "total": 0,
+          "rate": 0.0,
+          "kind": "compile",
+          "compile_error": "C:\\Users\\saahe\\AppData\\Local\\Temp\\tdes_fpga_um87kgo7\\ifft16_twiddle_rom.v:15: syntax error\nC:\\Users\\saahe\\AppData\\Local\\Temp\\tdes_fpga_um87kgo7\\ifft16_twiddle_rom.v:15: error: Malformed statement\nC:\\Users\\saahe\\AppData\\Local\\Temp\\tdes_fpga_um87kgo7\\ifft16_twiddle_rom.v:15: syntax error\nC:\\Users\\saahe\\AppData\\Local\\Temp\\tdes_fpga_um87kgo7\\ifft16_twiddle_rom.v:15: error: Malformed statement\nC:\\Users\\saahe\\AppData\\Local\\Temp\\tdes_fpga_um87kgo7\\ifft16_twiddle_rom.v:16: syntax error\nC:\\Users\\saahe\\Ap",
+          "stdout_excerpt": ""
+        },
+        {
+          "module": "ifft16_butterfly",
+          "passes": 33,
+          "total": 33,
+          "rate": 1.0,
+          "kind": "pass",
+          "compile_error": "",
+          "stdout_excerpt": "No specific failure lines found in output."
+        }
+      ]
+    },
+    {
+      "round": 2,
+      "full_passes": 0,
+      "full_total": 33,
+      "focus_module": "ifft16_stage_addr_gen",
+      "isolated_scores": [
+        {
+          "module": "ifft16_bit_reverse_addr",
+          "passes": 33,
+          "total": 33,
+          "rate": 1.0,
+          "kind": "pass",
+          "compile_error": "",
+          "stdout_excerpt": "No specific failure lines found in output."
+        },
+        {
+          "module": "ifft16_stage_addr_gen",
+          "passes": 0,
+          "total": 33,
+          "rate": 0.0,
+          "kind": "semantic",
+          "compile_error": "",
+          "stdout_excerpt": "[FAIL] Test 0 real: expected 0, got -346\n[FAIL] Test 0 imag: expected 0, got 599\n[FAIL] Test 1 real: expected 6, got -31\n[FAIL] Test 1 imag: expected 0, got -1606\n[FAIL] Test 2 real: expected 11, got 161\n[FAIL] Test 2 imag: expected 0, got -1370\n[FAIL] Test 3 real: expected 12, got 1135\n[FAIL] Test 3 imag: expected 0, got 209\n[FAIL] Test 4 real: expected 10, got 1265\n[FAIL] Test 4 imag: expected 0, got 1196\n[FAIL] Test 5 real: expected 7, got 192\n[FAIL] Test 5 imag: expected 0, got 1604\n[FAIL] Test 6 real: expected 5, got -1650\n[FAIL] Test 6 imag: expected 0, got -1936\n[FAIL] Test 7 real: expected 4, got 1888"
+        },
+        {
+          "module": "ifft16_twiddle_rom",
+          "passes": 33,
+          "total": 33,
+          "rate": 1.0,
+          "kind": "pass",
+          "compile_error": "",
+          "stdout_excerpt": "No specific failure lines found in output."
+        },
+        {
+          "module": "ifft16_butterfly",
+          "passes": 33,
+          "total": 33,
+          "rate": 1.0,
+          "kind": "pass",
+          "compile_error": "",
+          "stdout_excerpt": "No specific failure lines found in output."
+        }
+      ]
+    }
+  ],
+  "design": "ifft_16pt_iterative",
+  "model": "codex-gpt-5.5",
+  "seed": 1024,
+  "wall_seconds": 476.1,
+  "total_input_tokens": 0,
+  "total_output_tokens": 0
+}

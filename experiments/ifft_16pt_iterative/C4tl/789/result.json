@@ -1,0 +1,27 @@
+{
+  "condition": "C4tl",
+  "llm_calls": 5,
+  "best_passes": 33,
+  "total_tests": 33,
+  "solved": true,
+  "reference_oracle_valid": true,
+  "decomp_modules": [
+    "ifft16_pair_index",
+    "ifft16_twiddle_rom",
+    "ifft16_butterfly",
+    "ifft16_output_scale"
+  ],
+  "module_repair_rounds": {
+    "ifft16_pair_index": 0,
+    "ifft16_twiddle_rom": 0,
+    "ifft16_butterfly": 0,
+    "ifft16_output_scale": 0
+  },
+  "localization_history": [],
+  "design": "ifft_16pt_iterative",
+  "model": "codex-gpt-5.5",
+  "seed": 789,
+  "wall_seconds": 229.9,
+  "total_input_tokens": 0,
+  "total_output_tokens": 0
+}

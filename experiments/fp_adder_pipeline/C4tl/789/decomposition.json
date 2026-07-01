@@ -1,0 +1,10 @@
+{
+  "top_source_file": "verilog/fp_unpack.v",
+  "sub_modules": {
+    "fp_unpack": "Extracts IEEE-754 sign, exponent, significand, and class flags for one operand.",
+    "fp_special_cases": "Detects and produces results for NaNs, infinities, and signed zero pairs before normal arithmetic.",
+    "fp_align": "Aligns significands to a common effective exponent with guard, round, and sticky precision.",
+    "fp_addsub": "Adds or subtracts aligned significands according to effective operand signs and returns magnitude/sign.",
+    "fp_normalize_round": "Normalizes the arithmetic result, applies round-to-nearest-even, handles overflow and denormal packing."
+  }
+}

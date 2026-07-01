@@ -1,0 +1,29 @@
+{
+  "condition": "C4tl",
+  "llm_calls": 6,
+  "best_passes": 31,
+  "total_tests": 31,
+  "solved": true,
+  "reference_oracle_valid": true,
+  "decomp_modules": [
+    "fp_mult_unpack",
+    "fp_mult_exp_product",
+    "fp_mult_normalize",
+    "fp_mult_round",
+    "fp_mult_pack"
+  ],
+  "module_repair_rounds": {
+    "fp_mult_unpack": 0,
+    "fp_mult_exp_product": 0,
+    "fp_mult_normalize": 0,
+    "fp_mult_round": 0,
+    "fp_mult_pack": 0
+  },
+  "localization_history": [],
+  "design": "fp_mult_pipeline",
+  "model": "codex-gpt-5.5",
+  "seed": 123,
+  "wall_seconds": 693.5,
+  "total_input_tokens": 0,
+  "total_output_tokens": 0
+}

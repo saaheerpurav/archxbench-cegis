@@ -1,10 +1,10 @@
 {
-  "top_source_file": "verilog/ifft16_bit_reverse.v",
+  "top_source_file": "verilog/fft16_bit_reverse.v",
   "sub_modules": {
-    "ifft16_bit_reverse": "Combinational bit-reversal index generator used to load DIT FFT/IFFT memory in bit-reversed order.",
-    "ifft16_pair_index": "Combinational stage/j/group decoder that generates butterfly operand addresses, twiddle index, and loop boundary flags.",
-    "ifft16_twiddle_rom": "Combinational Q1.15 twiddle coefficient ROM for N=16 using the required cosine and positive sine table.",
-    "ifft16_butterfly_q15": "Combinational radix-2 complex butterfly with rounded Q1.15 complex twiddle multiplication.",
-    "ifft16_output_scale": "Combinational final output scaler; divides IFFT results by 16 using arithmetic right shift."
+    "fft16_bit_reverse": "Combinational 4-bit index bit-reversal used to load DIT input order.",
+    "fft16_address_gen": "Combinational stage and butterfly counter decoder producing p, q, and twiddle indices for the 16-point radix-2 DIT schedule.",
+    "fft16_twiddle_rom": "Combinational Q1.15 twiddle coefficient ROM for N=16 with FFT/IFFT sine sign selection.",
+    "fft16_complex_mult_q15": "Combinational rounded Q1.15 complex multiplier for twiddle rotation.",
+    "fft16_butterfly": "Combinational radix-2 butterfly that rotates the q operand and produces sum and difference outputs."
   }
 }

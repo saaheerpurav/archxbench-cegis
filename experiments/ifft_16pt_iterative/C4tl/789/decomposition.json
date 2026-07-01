@@ -1,0 +1,9 @@
+{
+  "top_source_file": "verilog/ifft16_pair_index.v",
+  "sub_modules": {
+    "ifft16_pair_index": "Combinational radix-2 DIT address and twiddle-index generator for each stage and butterfly iteration.",
+    "ifft16_twiddle_rom": "Combinational Q1.15 IFFT twiddle lookup table for N=16 using the required positive sine convention.",
+    "ifft16_butterfly": "Combinational fixed-point complex radix-2 butterfly with rounded Q1.15 complex rotation.",
+    "ifft16_output_scale": "Combinational arithmetic right-shift output normalizer implementing final IFFT divide-by-16 scaling."
+  }
+}

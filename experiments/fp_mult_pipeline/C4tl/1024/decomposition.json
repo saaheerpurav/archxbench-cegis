@@ -1,0 +1,10 @@
+{
+  "top_source_file": "verilog/fp_mult_unpack.v",
+  "sub_modules": {
+    "fp_mult_unpack": "Unpacks IEEE-754 operands into sign, exponent, significand, and special-case flags.",
+    "fp_mult_multiply_exp": "Multiplies 24-bit significands and computes the unbiased result exponent.",
+    "fp_mult_normalize": "Normalizes the 48-bit product and extracts guard, round, and sticky bits.",
+    "fp_mult_round_rne": "Applies round-to-nearest-even and adjusts exponent on mantissa carry.",
+    "fp_mult_pack": "Applies IEEE-754 special-case priority, overflow/underflow handling, and packs the final 32-bit result."
+  }
+}

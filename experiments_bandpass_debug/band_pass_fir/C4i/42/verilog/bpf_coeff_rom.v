@@ -1,0 +1,1 @@
+Use the current scaled, unrotated combinational ROM. No coefficient-ROM-only change can fix the remaining one-sample pipeline timing failure.

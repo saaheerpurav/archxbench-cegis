@@ -1,0 +1,83 @@
+{
+  "condition": "C4tl",
+  "llm_calls": 7,
+  "best_passes": 33,
+  "total_tests": 33,
+  "solved": true,
+  "reference_oracle_valid": true,
+  "decomp_modules": [
+    "fft16_index_gen",
+    "fft16_twiddle_rom",
+    "fft16_twiddle_mode",
+    "fft16_butterfly",
+    "fft16_output_scale"
+  ],
+  "module_repair_rounds": {
+    "fft16_index_gen": 1,
+    "fft16_twiddle_rom": 0,
+    "fft16_twiddle_mode": 0,
+    "fft16_butterfly": 0,
+    "fft16_output_scale": 0
+  },
+  "localization_history": [
+    {
+      "round": 1,
+      "full_passes": 0,
+      "full_total": 0,
+      "focus_module": "fft16_index_gen",
+      "isolated_scores": [
+        {
+          "module": "fft16_index_gen",
+          "passes": 0,
+          "total": 0,
+          "rate": 0.0,
+          "kind": "compile",
+          "compile_error": "C:\\Users\\saahe\\AppData\\Local\\Temp\\tdes_fpga_ixw1jqvs\\fft16_index_gen.v:30: syntax error\nC:\\Users\\saahe\\AppData\\Local\\Temp\\tdes_fpga_ixw1jqvs\\fft16_index_gen.v:30: error: Malformed statement",
+          "stdout_excerpt": ""
+        },
+        {
+          "module": "fft16_twiddle_rom",
+          "passes": 33,
+          "total": 33,
+          "rate": 1.0,
+          "kind": "pass",
+          "compile_error": "",
+          "stdout_excerpt": "No specific failure lines found in output."
+        },
+        {
+          "module": "fft16_twiddle_mode",
+          "passes": 33,
+          "total": 33,
+          "rate": 1.0,
+          "kind": "pass",
+          "compile_error": "",
+          "stdout_excerpt": "No specific failure lines found in output."
+        },
+        {
+          "module": "fft16_butterfly",
+          "passes": 33,
+          "total": 33,
+          "rate": 1.0,
+          "kind": "pass",
+          "compile_error": "",
+          "stdout_excerpt": "No specific failure lines found in output."
+        },
+        {
+          "module": "fft16_output_scale",
+          "passes": 33,
+          "total": 33,
+          "rate": 1.0,
+          "kind": "pass",
+          "compile_error": "",
+          "stdout_excerpt": "No specific failure lines found in output."
+        }
+      ]
+    }
+  ],
+  "design": "fft_16pt_iterative",
+  "model": "codex-gpt-5.5",
+  "seed": 1024,
+  "wall_seconds": 316.2,
+  "total_input_tokens": 0,
+  "total_output_tokens": 0
+}

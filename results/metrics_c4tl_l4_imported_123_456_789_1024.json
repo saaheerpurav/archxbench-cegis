@@ -1,0 +1,867 @@
+{
+  "fp_mult_pipeline__C4tl__codex-gpt-5.5__123": {
+    "condition": "C4tl",
+    "llm_calls": 6,
+    "best_passes": 31,
+    "total_tests": 31,
+    "solved": true,
+    "reference_oracle_valid": true,
+    "decomp_modules": [
+      "fp_mult_unpack",
+      "fp_mult_exp_product",
+      "fp_mult_normalize",
+      "fp_mult_round",
+      "fp_mult_pack"
+    ],
+    "module_repair_rounds": {
+      "fp_mult_unpack": 0,
+      "fp_mult_exp_product": 0,
+      "fp_mult_normalize": 0,
+      "fp_mult_round": 0,
+      "fp_mult_pack": 0
+    },
+    "localization_history": [],
+    "design": "fp_mult_pipeline",
+    "model": "codex-gpt-5.5",
+    "seed": 123,
+    "wall_seconds": 693.5,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0
+  },
+  "fp_mult_pipeline__C4tl__codex-gpt-5.5__456": {
+    "condition": "C4tl",
+    "llm_calls": 9,
+    "best_passes": 31,
+    "total_tests": 31,
+    "solved": true,
+    "reference_oracle_valid": true,
+    "decomp_modules": [
+      "fp_mult_unpack",
+      "fp_mult_special",
+      "fp_mult_mul_exp",
+      "fp_mult_normalize",
+      "fp_mult_round",
+      "fp_mult_pack"
+    ],
+    "module_repair_rounds": {
+      "fp_mult_unpack": 0,
+      "fp_mult_special": 0,
+      "fp_mult_mul_exp": 0,
+      "fp_mult_normalize": 0,
+      "fp_mult_round": 0,
+      "fp_mult_pack": 1
+    },
+    "localization_history": [
+      {
+        "round": 1,
+        "full_passes": 8,
+        "full_total": 30,
+        "focus_module": "fp_mult_pack",
+        "isolated_scores": [
+          {
+            "module": "fp_mult_unpack",
+            "passes": 31,
+            "total": 31,
+            "rate": 1.0,
+            "kind": "pass",
+            "compile_error": "",
+            "stdout_excerpt": "No specific failure lines found in output."
+          },
+          {
+            "module": "fp_mult_special",
+            "passes": 31,
+            "total": 31,
+            "rate": 1.0,
+            "kind": "pass",
+            "compile_error": "",
+            "stdout_excerpt": "No specific failure lines found in output."
+          },
+          {
+            "module": "fp_mult_mul_exp",
+            "passes": 31,
+            "total": 31,
+            "rate": 1.0,
+            "kind": "pass",
+            "compile_error": "",
+            "stdout_excerpt": "No specific failure lines found in output."
+          },
+          {
+            "module": "fp_mult_normalize",
+            "passes": 31,
+            "total": 31,
+            "rate": 1.0,
+            "kind": "pass",
+            "compile_error": "",
+            "stdout_excerpt": "No specific failure lines found in output."
+          },
+          {
+            "module": "fp_mult_round",
+            "passes": 31,
+            "total": 31,
+            "rate": 1.0,
+            "kind": "pass",
+            "compile_error": "",
+            "stdout_excerpt": "No specific failure lines found in output."
+          },
+          {
+            "module": "fp_mult_pack",
+            "passes": 8,
+            "total": 30,
+            "rate": 0.26666666666666666,
+            "kind": "semantic",
+            "compile_error": "",
+            "stdout_excerpt": "[FAIL] Test 1: Expected 0x40000000, Got 0x7f800000\n[FAIL] Test 2: Expected 0x40c00000, Got 0x7f800000\n[FAIL] Test 3: Expected 0x3e800000, Got 0x7e000000\n[FAIL] Test 4: Expected 0x3f800000, Got 0x7f000000\n[FAIL] Test 5: Expected 0xc0000000, Got 0xff800000\n[FAIL] Test 6: Expected 0x40000000, Got 0x7f800000\n[FAIL] Test 7: Expected 0xc0000000, Got 0xff800000\n[FAIL] Test 8: Expected 0x3f800000, Got 0x7f000000\n[FAIL] Test 9: Expected 0x42000000, Got 0x7f800000\n[FAIL] Test 10: Expected 0x3f800000, Got 0x7f000000\n[FAIL] Test 11: Expected 0x3f000000, Got 0x7e800000\n[FAIL] Test 19: Expected 0x00800000, Got 0x40000000\n[FAIL] Test 21: Expected 0x00000000, Got 0x01000000\n[FAIL] Test 22: Expected 0x27800000, Got 0x67000000\n[FAIL] Test 23: Expected 0x3f2aaaab, Got 0x7eaaaaab"
+          }
+        ]
+      }
+    ],
+    "design": "fp_mult_pipeline",
+    "model": "codex-gpt-5.5",
+    "seed": 456,
+    "wall_seconds": 666.1,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0
+  },
+  "fp_mult_pipeline__C4tl__codex-gpt-5.5__789": {
+    "condition": "C4tl",
+    "llm_calls": 7,
+    "best_passes": 31,
+    "total_tests": 31,
+    "solved": true,
+    "reference_oracle_valid": true,
+    "decomp_modules": [
+      "fp_mult_unpack",
+      "fp_mult_exp_mul",
+      "fp_mult_normalize",
+      "fp_mult_round_rne",
+      "fp_mult_pack_special"
+    ],
+    "module_repair_rounds": {
+      "fp_mult_unpack": 0,
+      "fp_mult_exp_mul": 1,
+      "fp_mult_normalize": 0,
+      "fp_mult_round_rne": 0,
+      "fp_mult_pack_special": 0
+    },
+    "localization_history": [
+      {
+        "round": 1,
+        "full_passes": 8,
+        "full_total": 30,
+        "focus_module": "fp_mult_exp_mul",
+        "isolated_scores": [
+          {
+            "module": "fp_mult_unpack",
+            "passes": 31,
+            "total": 31,
+            "rate": 1.0,
+            "kind": "pass",
+            "compile_error": "",
+            "stdout_excerpt": "No specific failure lines found in output."
+          },
+          {
+            "module": "fp_mult_exp_mul",
+            "passes": 8,
+            "total": 30,
+            "rate": 0.26666666666666666,
+            "kind": "semantic",
+            "compile_error": "",
+            "stdout_excerpt": "[FAIL] Test 1: Expected 0x40000000, Got 0x00800000\n[FAIL] Test 2: Expected 0x40c00000, Got 0x01400000\n[FAIL] Test 3: Expected 0x3e800000, Got 0x00000000\n[FAIL] Test 4: Expected 0x3f800000, Got 0x00000000\n[FAIL] Test 5: Expected 0xc0000000, Got 0x80800000\n[FAIL] Test 6: Expected 0x40000000, Got 0x00800000\n[FAIL] Test 7: Expected 0xc0000000, Got 0x80800000\n[FAIL] Test 8: Expected 0x3f800000, Got 0x00000000\n[FAIL] Test 9: Expected 0x42000000, Got 0x02800000\n[FAIL] Test 10: Expected 0x3f800000, Got 0x00000000\n[FAIL] Test 11: Expected 0x3f000000, Got 0x00000000\n[FAIL] Test 19: Expected 0x00800000, Got 0x00000000\n[FAIL] Test 20: Expected 0x7f800000, Got 0x7f000000\n[FAIL] Test 22: Expected 0x27800000, Got 0x00000000\n[FAIL] Test 23: Expected 0x3f2aaaab, Got 0x00000000"
+          },
+          {
+            "module": "fp_mult_normalize",
+            "passes": 31,
+            "total": 31,
+            "rate": 1.0,
+            "kind": "pass",
+            "compile_error": "",
+            "stdout_excerpt": "No specific failure lines found in output."
+          },
+          {
+            "module": "fp_mult_round_rne",
+            "passes": 31,
+            "total": 31,
+            "rate": 1.0,
+            "kind": "pass",
+            "compile_error": "",
+            "stdout_excerpt": "No specific failure lines found in output."
+          },
+          {
+            "module": "fp_mult_pack_special",
+            "passes": 31,
+            "total": 31,
+            "rate": 1.0,
+            "kind": "pass",
+            "compile_error": "",
+            "stdout_excerpt": "No specific failure lines found in output."
+          }
+        ]
+      }
+    ],
+    "design": "fp_mult_pipeline",
+    "model": "codex-gpt-5.5",
+    "seed": 789,
+    "wall_seconds": 324.5,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0
+  },
+  "fp_mult_pipeline__C4tl__codex-gpt-5.5__1024": {
+    "condition": "C4tl",
+    "llm_calls": 6,
+    "best_passes": 31,
+    "total_tests": 31,
+    "solved": true,
+    "reference_oracle_valid": true,
+    "decomp_modules": [
+      "fp_mult_unpack",
+      "fp_mult_multiply_exp",
+      "fp_mult_normalize",
+      "fp_mult_round_rne",
+      "fp_mult_pack"
+    ],
+    "module_repair_rounds": {
+      "fp_mult_unpack": 0,
+      "fp_mult_multiply_exp": 0,
+      "fp_mult_normalize": 0,
+      "fp_mult_round_rne": 0,
+      "fp_mult_pack": 0
+    },
+    "localization_history": [],
+    "design": "fp_mult_pipeline",
+    "model": "codex-gpt-5.5",
+    "seed": 1024,
+    "wall_seconds": 261.7,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0
+  },
+  "fp_adder_pipeline__C4tl__codex-gpt-5.5__123": {
+    "condition": "C4tl",
+    "llm_calls": 6,
+    "best_passes": 23,
+    "total_tests": 23,
+    "solved": true,
+    "reference_oracle_valid": true,
+    "decomp_modules": [
+      "fp_unpack",
+      "fp_special_cases",
+      "fp_add_core",
+      "fp_result_pack"
+    ],
+    "module_repair_rounds": {
+      "fp_unpack": 0,
+      "fp_special_cases": 0,
+      "fp_add_core": 0,
+      "fp_result_pack": 0
+    },
+    "localization_history": [],
+    "design": "fp_adder_pipeline",
+    "model": "codex-gpt-5.5",
+    "seed": 123,
+    "wall_seconds": 483.6,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0
+  },
+  "fp_adder_pipeline__C4tl__codex-gpt-5.5__456": {
+    "condition": "C4tl",
+    "llm_calls": 7,
+    "best_passes": 23,
+    "total_tests": 23,
+    "solved": true,
+    "reference_oracle_valid": true,
+    "decomp_modules": [
+      "fp_adder_unpack",
+      "fp_adder_special",
+      "fp_adder_align",
+      "fp_adder_addsub",
+      "fp_adder_normalize_round"
+    ],
+    "module_repair_rounds": {
+      "fp_adder_unpack": 0,
+      "fp_adder_special": 0,
+      "fp_adder_align": 1,
+      "fp_adder_addsub": 0,
+      "fp_adder_normalize_round": 0
+    },
+    "localization_history": [
+      {
+        "round": 1,
+        "full_passes": 12,
+        "full_total": 23,
+        "focus_module": "fp_adder_align",
+        "isolated_scores": [
+          {
+            "module": "fp_adder_unpack",
+            "passes": 23,
+            "total": 23,
+            "rate": 1.0,
+            "kind": "pass",
+            "compile_error": "",
+            "stdout_excerpt": "No specific failure lines found in output."
+          },
+          {
+            "module": "fp_adder_special",
+            "passes": 23,
+            "total": 23,
+            "rate": 1.0,
+            "kind": "pass",
+            "compile_error": "",
+            "stdout_excerpt": "No specific failure lines found in output."
+          },
+          {
+            "module": "fp_adder_align",
+            "passes": 10,
+            "total": 23,
+            "rate": 0.43478260869565216,
+            "kind": "semantic",
+            "compile_error": "",
+            "stdout_excerpt": "[FAIL] Expected: 0x40400000, Got: 0x40c00000\n[FAIL] Expected: 0x40000000, Got: 0x40800000\n[FAIL] Expected: 0x40500000, Got: 0x40d00000\n[FAIL] Expected: 0x42040000, Got: 0x42840000\n[FAIL] Expected: 0x3f800000, Got: 0x40000000\n[FAIL] Expected: 0xc0000000, Got: 0x00000000\n[FAIL] Expected: 0x40000000, Got: 0x00000000\n[FAIL] Expected: 0x3f800000, Got: 0x34000000\n[FAIL] Expected: 0x3f2aaaab, Got: 0x3eaaaaac\n[FAIL] Expected: 0x3fc00000, Got: 0x40400000\n[FAIL] Expected: 0x40400000, Got: 0x40c00000\n[FAIL] Expected: 0x7f800000, Got: 0x00000000\n[FAIL] Expected: 0xff800000, Got: 0x00000000"
+          },
+          {
+            "module": "fp_adder_addsub",
+            "passes": 23,
+            "total": 23,
+            "rate": 1.0,
+            "kind": "pass",
+            "compile_error": "",
+            "stdout_excerpt": "No specific failure lines found in output."
+          },
+          {
+            "module": "fp_adder_normalize_round",
+            "passes": 23,
+            "total": 23,
+            "rate": 1.0,
+            "kind": "pass",
+            "compile_error": "",
+            "stdout_excerpt": "No specific failure lines found in output."
+          }
+        ]
+      }
+    ],
+    "design": "fp_adder_pipeline",
+    "model": "codex-gpt-5.5",
+    "seed": 456,
+    "wall_seconds": 300.5,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0
+  },
+  "fp_adder_pipeline__C4tl__codex-gpt-5.5__789": {
+    "condition": "C4tl",
+    "llm_calls": 8,
+    "best_passes": 23,
+    "total_tests": 23,
+    "solved": true,
+    "reference_oracle_valid": true,
+    "decomp_modules": [
+      "fp_unpack",
+      "fp_special_cases",
+      "fp_align",
+      "fp_addsub",
+      "fp_normalize_round"
+    ],
+    "module_repair_rounds": {
+      "fp_unpack": 0,
+      "fp_special_cases": 0,
+      "fp_align": 0,
+      "fp_addsub": 0,
+      "fp_normalize_round": 0
+    },
+    "localization_history": [],
+    "design": "fp_adder_pipeline",
+    "model": "codex-gpt-5.5",
+    "seed": 789,
+    "wall_seconds": 547.6,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0
+  },
+  "fp_adder_pipeline__C4tl__codex-gpt-5.5__1024": {
+    "condition": "C4tl",
+    "llm_calls": 7,
+    "best_passes": 23,
+    "total_tests": 23,
+    "solved": true,
+    "reference_oracle_valid": true,
+    "decomp_modules": [
+      "fp_unpack",
+      "fp_special_cases",
+      "fp_align",
+      "fp_addsub_significands",
+      "fp_normalize_round_pack"
+    ],
+    "module_repair_rounds": {
+      "fp_unpack": 0,
+      "fp_special_cases": 1,
+      "fp_align": 0,
+      "fp_addsub_significands": 0,
+      "fp_normalize_round_pack": 0
+    },
+    "localization_history": [
+      {
+        "round": 1,
+        "full_passes": 0,
+        "full_total": 0,
+        "focus_module": "fp_special_cases",
+        "isolated_scores": [
+          {
+            "module": "fp_unpack",
+            "passes": 23,
+            "total": 23,
+            "rate": 1.0,
+            "kind": "pass",
+            "compile_error": "",
+            "stdout_excerpt": "No specific failure lines found in output."
+          },
+          {
+            "module": "fp_special_cases",
+            "passes": 0,
+            "total": 0,
+            "rate": 0.0,
+            "kind": "compile",
+            "compile_error": "C:\\Users\\saahe\\AppData\\Local\\Temp\\tdes_fpga_b72enuls\\fp_special_cases.v:47: syntax error\nC:\\Users\\saahe\\AppData\\Local\\Temp\\tdes_fpga_b72enuls\\fp_special_cases.v:36: error: Syntax error in continuous assignment",
+            "stdout_excerpt": ""
+          },
+          {
+            "module": "fp_align",
+            "passes": 23,
+            "total": 23,
+            "rate": 1.0,
+            "kind": "pass",
+            "compile_error": "",
+            "stdout_excerpt": "No specific failure lines found in output."
+          },
+          {
+            "module": "fp_addsub_significands",
+            "passes": 23,
+            "total": 23,
+            "rate": 1.0,
+            "kind": "pass",
+            "compile_error": "",
+            "stdout_excerpt": "No specific failure lines found in output."
+          },
+          {
+            "module": "fp_normalize_round_pack",
+            "passes": 23,
+            "total": 23,
+            "rate": 1.0,
+            "kind": "pass",
+            "compile_error": "",
+            "stdout_excerpt": "No specific failure lines found in output."
+          }
+        ]
+      }
+    ],
+    "design": "fp_adder_pipeline",
+    "model": "codex-gpt-5.5",
+    "seed": 1024,
+    "wall_seconds": 325.7,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0
+  },
+  "fft_16pt_iterative__C4tl__codex-gpt-5.5__123": {
+    "condition": "C4tl",
+    "llm_calls": 6,
+    "best_passes": 33,
+    "total_tests": 33,
+    "solved": true,
+    "reference_oracle_valid": true,
+    "decomp_modules": [
+      "fft16_butterfly",
+      "fft16_twiddle_rom",
+      "fft16_addr_gen",
+      "fft16_bit_reverse_loader"
+    ],
+    "module_repair_rounds": {
+      "fft16_butterfly": 0,
+      "fft16_twiddle_rom": 0,
+      "fft16_addr_gen": 0,
+      "fft16_bit_reverse_loader": 0
+    },
+    "localization_history": [],
+    "design": "fft_16pt_iterative",
+    "model": "codex-gpt-5.5",
+    "seed": 123,
+    "wall_seconds": 384.7,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0
+  },
+  "fft_16pt_iterative__C4tl__codex-gpt-5.5__456": {
+    "condition": "C4tl",
+    "llm_calls": 5,
+    "best_passes": 33,
+    "total_tests": 33,
+    "solved": true,
+    "reference_oracle_valid": true,
+    "decomp_modules": [
+      "fft16_pair_index",
+      "fft16_twiddle_rom",
+      "fft16_butterfly",
+      "fft16_output_scale"
+    ],
+    "module_repair_rounds": {
+      "fft16_pair_index": 0,
+      "fft16_twiddle_rom": 0,
+      "fft16_butterfly": 0,
+      "fft16_output_scale": 0
+    },
+    "localization_history": [],
+    "design": "fft_16pt_iterative",
+    "model": "codex-gpt-5.5",
+    "seed": 456,
+    "wall_seconds": 242.5,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0
+  },
+  "fft_16pt_iterative__C4tl__codex-gpt-5.5__789": {
+    "condition": "C4tl",
+    "llm_calls": 7,
+    "best_passes": 33,
+    "total_tests": 33,
+    "solved": true,
+    "reference_oracle_valid": true,
+    "decomp_modules": [
+      "fft16_butterfly",
+      "fft16_twiddle_rom",
+      "fft16_index_gen",
+      "fft16_bit_reverse"
+    ],
+    "module_repair_rounds": {
+      "fft16_butterfly": 1,
+      "fft16_twiddle_rom": 0,
+      "fft16_index_gen": 0,
+      "fft16_bit_reverse": 0
+    },
+    "localization_history": [
+      {
+        "round": 1,
+        "full_passes": 9,
+        "full_total": 33,
+        "focus_module": "fft16_butterfly",
+        "isolated_scores": [
+          {
+            "module": "fft16_butterfly",
+            "passes": 9,
+            "total": 33,
+            "rate": 0.2727272727272727,
+            "kind": "semantic",
+            "compile_error": "",
+            "stdout_excerpt": "[FAIL] Test 1 real: expected -32, got -51\n[FAIL] Test 1 imag: expected -60, got -42\n[FAIL] Test 2 real: expected -13, got -46\n[FAIL] Test 2 imag: expected -51, got -26\n[FAIL] Test 3 real: expected 3, got -12\n[FAIL] Test 3 imag: expected -12, got -8\n[FAIL] Test 4 real: expected 5, got -6\n[FAIL] Test 4 imag: expected -8, got -4\n[FAIL] Test 5 real: expected 5, got -6\n[FAIL] Test 6 real: expected 6, got -6\n[FAIL] Test 7 real: expected 6, got -7\n[FAIL] Test 8 real: expected 6, got -6\n[FAIL] Test 9 real: expected 6, got -7\n[FAIL] Test 10 real: expected 6, got -6\n[FAIL] Test 11 real: expected 5, got -6"
+          },
+          {
+            "module": "fft16_twiddle_rom",
+            "passes": 33,
+            "total": 33,
+            "rate": 1.0,
+            "kind": "pass",
+            "compile_error": "",
+            "stdout_excerpt": "No specific failure lines found in output."
+          },
+          {
+            "module": "fft16_index_gen",
+            "passes": 33,
+            "total": 33,
+            "rate": 1.0,
+            "kind": "pass",
+            "compile_error": "",
+            "stdout_excerpt": "No specific failure lines found in output."
+          },
+          {
+            "module": "fft16_bit_reverse",
+            "passes": 33,
+            "total": 33,
+            "rate": 1.0,
+            "kind": "pass",
+            "compile_error": "",
+            "stdout_excerpt": "No specific failure lines found in output."
+          }
+        ]
+      }
+    ],
+    "design": "fft_16pt_iterative",
+    "model": "codex-gpt-5.5",
+    "seed": 789,
+    "wall_seconds": 341.1,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0
+  },
+  "fft_16pt_iterative__C4tl__codex-gpt-5.5__1024": {
+    "condition": "C4tl",
+    "llm_calls": 7,
+    "best_passes": 33,
+    "total_tests": 33,
+    "solved": true,
+    "reference_oracle_valid": true,
+    "decomp_modules": [
+      "fft16_index_gen",
+      "fft16_twiddle_rom",
+      "fft16_twiddle_mode",
+      "fft16_butterfly",
+      "fft16_output_scale"
+    ],
+    "module_repair_rounds": {
+      "fft16_index_gen": 1,
+      "fft16_twiddle_rom": 0,
+      "fft16_twiddle_mode": 0,
+      "fft16_butterfly": 0,
+      "fft16_output_scale": 0
+    },
+    "localization_history": [
+      {
+        "round": 1,
+        "full_passes": 0,
+        "full_total": 0,
+        "focus_module": "fft16_index_gen",
+        "isolated_scores": [
+          {
+            "module": "fft16_index_gen",
+            "passes": 0,
+            "total": 0,
+            "rate": 0.0,
+            "kind": "compile",
+            "compile_error": "C:\\Users\\saahe\\AppData\\Local\\Temp\\tdes_fpga_ixw1jqvs\\fft16_index_gen.v:30: syntax error\nC:\\Users\\saahe\\AppData\\Local\\Temp\\tdes_fpga_ixw1jqvs\\fft16_index_gen.v:30: error: Malformed statement",
+            "stdout_excerpt": ""
+          },
+          {
+            "module": "fft16_twiddle_rom",
+            "passes": 33,
+            "total": 33,
+            "rate": 1.0,
+            "kind": "pass",
+            "compile_error": "",
+            "stdout_excerpt": "No specific failure lines found in output."
+          },
+          {
+            "module": "fft16_twiddle_mode",
+            "passes": 33,
+            "total": 33,
+            "rate": 1.0,
+            "kind": "pass",
+            "compile_error": "",
+            "stdout_excerpt": "No specific failure lines found in output."
+          },
+          {
+            "module": "fft16_butterfly",
+            "passes": 33,
+            "total": 33,
+            "rate": 1.0,
+            "kind": "pass",
+            "compile_error": "",
+            "stdout_excerpt": "No specific failure lines found in output."
+          },
+          {
+            "module": "fft16_output_scale",
+            "passes": 33,
+            "total": 33,
+            "rate": 1.0,
+            "kind": "pass",
+            "compile_error": "",
+            "stdout_excerpt": "No specific failure lines found in output."
+          }
+        ]
+      }
+    ],
+    "design": "fft_16pt_iterative",
+    "model": "codex-gpt-5.5",
+    "seed": 1024,
+    "wall_seconds": 316.2,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0
+  },
+  "ifft_16pt_iterative__C4tl__codex-gpt-5.5__123": {
+    "condition": "C4tl",
+    "llm_calls": 5,
+    "best_passes": 33,
+    "total_tests": 33,
+    "solved": true,
+    "reference_oracle_valid": true,
+    "decomp_modules": [
+      "ifft16_bit_reverse",
+      "ifft16_addr_gen",
+      "ifft16_twiddle_rom",
+      "ifft16_butterfly"
+    ],
+    "module_repair_rounds": {
+      "ifft16_bit_reverse": 0,
+      "ifft16_addr_gen": 0,
+      "ifft16_twiddle_rom": 0,
+      "ifft16_butterfly": 0
+    },
+    "localization_history": [],
+    "design": "ifft_16pt_iterative",
+    "model": "codex-gpt-5.5",
+    "seed": 123,
+    "wall_seconds": 223.0,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0
+  },
+  "ifft_16pt_iterative__C4tl__codex-gpt-5.5__456": {
+    "condition": "C4tl",
+    "llm_calls": 6,
+    "best_passes": 33,
+    "total_tests": 33,
+    "solved": true,
+    "reference_oracle_valid": true,
+    "decomp_modules": [
+      "fft16_bit_reverse_addr",
+      "fft16_pair_index",
+      "fft16_twiddle_rom",
+      "fft16_ifft_butterfly",
+      "fft16_ifft_output_scale"
+    ],
+    "module_repair_rounds": {
+      "fft16_bit_reverse_addr": 0,
+      "fft16_pair_index": 0,
+      "fft16_twiddle_rom": 0,
+      "fft16_ifft_butterfly": 0,
+      "fft16_ifft_output_scale": 0
+    },
+    "localization_history": [],
+    "design": "ifft_16pt_iterative",
+    "model": "codex-gpt-5.5",
+    "seed": 456,
+    "wall_seconds": 287.9,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0
+  },
+  "ifft_16pt_iterative__C4tl__codex-gpt-5.5__789": {
+    "condition": "C4tl",
+    "llm_calls": 5,
+    "best_passes": 33,
+    "total_tests": 33,
+    "solved": true,
+    "reference_oracle_valid": true,
+    "decomp_modules": [
+      "ifft16_pair_index",
+      "ifft16_twiddle_rom",
+      "ifft16_butterfly",
+      "ifft16_output_scale"
+    ],
+    "module_repair_rounds": {
+      "ifft16_pair_index": 0,
+      "ifft16_twiddle_rom": 0,
+      "ifft16_butterfly": 0,
+      "ifft16_output_scale": 0
+    },
+    "localization_history": [],
+    "design": "ifft_16pt_iterative",
+    "model": "codex-gpt-5.5",
+    "seed": 789,
+    "wall_seconds": 229.9,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0
+  },
+  "ifft_16pt_iterative__C4tl__codex-gpt-5.5__1024": {
+    "condition": "C4tl",
+    "llm_calls": 8,
+    "best_passes": 33,
+    "total_tests": 33,
+    "solved": true,
+    "reference_oracle_valid": true,
+    "decomp_modules": [
+      "ifft16_bit_reverse_addr",
+      "ifft16_stage_addr_gen",
+      "ifft16_twiddle_rom",
+      "ifft16_butterfly"
+    ],
+    "module_repair_rounds": {
+      "ifft16_bit_reverse_addr": 0,
+      "ifft16_stage_addr_gen": 1,
+      "ifft16_twiddle_rom": 1,
+      "ifft16_butterfly": 0
+    },
+    "localization_history": [
+      {
+        "round": 1,
+        "full_passes": 0,
+        "full_total": 0,
+        "focus_module": "ifft16_twiddle_rom",
+        "isolated_scores": [
+          {
+            "module": "ifft16_bit_reverse_addr",
+            "passes": 33,
+            "total": 33,
+            "rate": 1.0,
+            "kind": "pass",
+            "compile_error": "",
+            "stdout_excerpt": "No specific failure lines found in output."
+          },
+          {
+            "module": "ifft16_stage_addr_gen",
+            "passes": 0,
+            "total": 33,
+            "rate": 0.0,
+            "kind": "semantic",
+            "compile_error": "",
+            "stdout_excerpt": "[FAIL] Test 0 real: expected 0, got -346\n[FAIL] Test 0 imag: expected 0, got 599\n[FAIL] Test 1 real: expected 6, got -31\n[FAIL] Test 1 imag: expected 0, got -1606\n[FAIL] Test 2 real: expected 11, got 161\n[FAIL] Test 2 imag: expected 0, got -1370\n[FAIL] Test 3 real: expected 12, got 1135\n[FAIL] Test 3 imag: expected 0, got 209\n[FAIL] Test 4 real: expected 10, got 1265\n[FAIL] Test 4 imag: expected 0, got 1196\n[FAIL] Test 5 real: expected 7, got 192\n[FAIL] Test 5 imag: expected 0, got 1604\n[FAIL] Test 6 real: expected 5, got -1650\n[FAIL] Test 6 imag: expected 0, got -1936\n[FAIL] Test 7 real: expected 4, got 1888"
+          },
+          {
+            "module": "ifft16_twiddle_rom",
+            "passes": 0,
+            "total": 0,
+            "rate": 0.0,
+            "kind": "compile",
+            "compile_error": "C:\\Users\\saahe\\AppData\\Local\\Temp\\tdes_fpga_um87kgo7\\ifft16_twiddle_rom.v:15: syntax error\nC:\\Users\\saahe\\AppData\\Local\\Temp\\tdes_fpga_um87kgo7\\ifft16_twiddle_rom.v:15: error: Malformed statement\nC:\\Users\\saahe\\AppData\\Local\\Temp\\tdes_fpga_um87kgo7\\ifft16_twiddle_rom.v:15: syntax error\nC:\\Users\\saahe\\AppData\\Local\\Temp\\tdes_fpga_um87kgo7\\ifft16_twiddle_rom.v:15: error: Malformed statement\nC:\\Users\\saahe\\AppData\\Local\\Temp\\tdes_fpga_um87kgo7\\ifft16_twiddle_rom.v:16: syntax error\nC:\\Users\\saahe\\Ap",
+            "stdout_excerpt": ""
+          },
+          {
+            "module": "ifft16_butterfly",
+            "passes": 33,
+            "total": 33,
+            "rate": 1.0,
+            "kind": "pass",
+            "compile_error": "",
+            "stdout_excerpt": "No specific failure lines found in output."
+          }
+        ]
+      },
+      {
+        "round": 2,
+        "full_passes": 0,
+        "full_total": 33,
+        "focus_module": "ifft16_stage_addr_gen",
+        "isolated_scores": [
+          {
+            "module": "ifft16_bit_reverse_addr",
+            "passes": 33,
+            "total": 33,
+            "rate": 1.0,
+            "kind": "pass",
+            "compile_error": "",
+            "stdout_excerpt": "No specific failure lines found in output."
+          },
+          {
+            "module": "ifft16_stage_addr_gen",
+            "passes": 0,
+            "total": 33,
+            "rate": 0.0,
+            "kind": "semantic",
+            "compile_error": "",
+            "stdout_excerpt": "[FAIL] Test 0 real: expected 0, got -346\n[FAIL] Test 0 imag: expected 0, got 599\n[FAIL] Test 1 real: expected 6, got -31\n[FAIL] Test 1 imag: expected 0, got -1606\n[FAIL] Test 2 real: expected 11, got 161\n[FAIL] Test 2 imag: expected 0, got -1370\n[FAIL] Test 3 real: expected 12, got 1135\n[FAIL] Test 3 imag: expected 0, got 209\n[FAIL] Test 4 real: expected 10, got 1265\n[FAIL] Test 4 imag: expected 0, got 1196\n[FAIL] Test 5 real: expected 7, got 192\n[FAIL] Test 5 imag: expected 0, got 1604\n[FAIL] Test 6 real: expected 5, got -1650\n[FAIL] Test 6 imag: expected 0, got -1936\n[FAIL] Test 7 real: expected 4, got 1888"
+          },
+          {
+            "module": "ifft16_twiddle_rom",
+            "passes": 33,
+            "total": 33,
+            "rate": 1.0,
+            "kind": "pass",
+            "compile_error": "",
+            "stdout_excerpt": "No specific failure lines found in output."
+          },
+          {
+            "module": "ifft16_butterfly",
+            "passes": 33,
+            "total": 33,
+            "rate": 1.0,
+            "kind": "pass",
+            "compile_error": "",
+            "stdout_excerpt": "No specific failure lines found in output."
+          }
+        ]
+      }
+    ],
+    "design": "ifft_16pt_iterative",
+    "model": "codex-gpt-5.5",
+    "seed": 1024,
+    "wall_seconds": 476.1,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0
+  }
+}
