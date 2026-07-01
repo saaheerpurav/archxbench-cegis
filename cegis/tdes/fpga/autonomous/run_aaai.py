@@ -5,6 +5,7 @@ Conditions:
   C2g: Monolithic CEGIS with golden feedback — 30 rounds, multi-turn
   C4i: Investigative CEGIS — decompose + study-diagnose-fix loop per sub-module
   C4tl: Trace-Lifted CEGIS — decompose + fault localization via reference-gating
+  C4m: Memory-Guided CEGIS — C4tl + persistent global evidence ledger
   C2:  Legacy monolithic CEGIS (no golden feedback)
   C4:  Legacy decompose + stateless CEGIS
 
@@ -97,7 +98,7 @@ _LEVEL_DIRS = {
 
 ALL_DESIGNS = _LEVEL_DESIGNS["L4"]  # backwards compat
 
-ALL_CONDITIONS = ["C1", "C2", "C2g", "C3", "C4", "C4i", "C4i-noStudy", "C4i-stateless", "C4i-rawFail", "C4i-noRef", "C4tl", "C5"]
+ALL_CONDITIONS = ["C1", "C2", "C2g", "C3", "C4", "C4i", "C4i-noStudy", "C4i-stateless", "C4i-rawFail", "C4i-noRef", "C4tl", "C4m", "C4a", "C5"]
 
 # Priority design lists for budget-constrained runs
 _PRIORITY_DESIGNS = {
@@ -1404,6 +1405,620 @@ def run_C4tl(
 
 
 # ---------------------------------------------------------------------------
+# C4m: Memory-Guided CEGIS
+# ---------------------------------------------------------------------------
+
+_C4M_SYSTEM = (
+    "You are an expert hardware verification and design engineer. "
+    "Maintain global consistency across decomposed RTL modules: numeric format, "
+    "signedness, latency, reset/valid protocol, rounding, and output format. "
+    "Use the evidence ledger as binding context, but correct it when simulator "
+    "evidence disproves it.\n\n"
+    "When writing Verilog, wrap it in "
+    "<file name=\"{module}.v\" type=\"implementation\">...</file> tags."
+)
+
+
+def _build_initial_ledger_prompt(decomp, problem_desc: str, design_specs: str,
+                                 testbench: str) -> str:
+    modules = "\n".join(
+        f"- `{s.name}`: {s.description}" for s in decomp.sub_modules
+    )
+    return (
+        "Build a concise GLOBAL EVIDENCE LEDGER for this decomposed RTL task.\n\n"
+        "The ledger must capture facts that every module must obey. Focus on:\n"
+        "- numeric representation / scale / signedness\n"
+        "- pipeline latency and valid/reset behavior\n"
+        "- interface contracts between modules\n"
+        "- output format expected by the testbench\n"
+        "- likely global failure modes\n\n"
+        f"## Specification\n{problem_desc}\n\n"
+        f"## Interface\n{design_specs}\n\n"
+        f"## Decomposition\n{modules}\n\n"
+        f"## System Testbench Excerpt\n```verilog\n{testbench[:4000]}\n```\n\n"
+        "Return only a compact markdown ledger with bullet points. Do not write code."
+    )
+
+
+def _summarize_scores(scores: Dict[str, Tuple[int, int]]) -> str:
+    if not scores:
+        return "(no localization scores)"
+    return "\n".join(
+        f"- {name}: {p}/{t} when swapped to reference"
+        for name, (p, t) in sorted(scores.items())
+    )
+
+
+def _build_ledger_update_prompt(ledger: str, culprit: str, p: int, t: int,
+                                sim, scores: Dict[str, Tuple[int, int]],
+                                golden_feedback: str) -> str:
+    fail_details = _parse_fail_details(sim.stdout) if sim and sim.compiled else (
+        (sim.compile_error or sim.stderr or "Unknown compilation error") if sim else "No simulation"
+    )
+    return (
+        "Update the GLOBAL EVIDENCE LEDGER using the latest simulator evidence.\n\n"
+        "Keep only facts that help future module repairs. Preserve proven global "
+        "constraints, add new counterexamples, and remove contradicted guesses.\n\n"
+        f"## Previous Ledger\n{ledger}\n\n"
+        f"## Current System Score\n{p}/{t}\n\n"
+        f"## Localized Culprit\n`{culprit}`\n\n"
+        f"## Reference-Swap Scores\n{_summarize_scores(scores)}\n\n"
+        f"## Failures\n```\n{fail_details[:1200]}\n```\n"
+        f"{golden_feedback}\n\n"
+        "Return only the updated compact markdown ledger. Do not write code."
+    )
+
+
+def run_C4m(
+    top_name: str, testbench: str, model: str,
+    client: "LLMClient", problem_desc: str, design_specs: str,
+    data_dir: Optional[str] = None,
+) -> dict:
+    """Memory-guided decomposed CEGIS.
+
+    C4m keeps C4tl's reference-gated localization, but adds a persistent
+    global evidence ledger and per-module repair histories so cross-module
+    numeric/protocol discoveries survive between repairs.
+    """
+    decomp = decompose(
+        problem_desc, design_specs, testbench,
+        model=model, client=client, top_module_name=top_name,
+    )
+    total_calls = 1
+
+    ref_modules = {top_name: decomp.top_source}
+    ref_modules.update(decomp.reference_modules)
+    ref_sim = simulate(ref_modules, testbench, timeout=60, data_dir=data_dir)
+    ref_passes, ref_total = 0, 0
+    if ref_sim.compiled:
+        ref_passes, ref_total = _count_tb_passes(ref_sim.stdout)
+    ref_ok = ref_total > 0 and ref_passes == ref_total
+
+    ledger = "## Global Evidence Ledger\n- No evidence recorded yet.\n"
+    try:
+        total_calls += 1
+        resp = client.messages.create(
+            model=model, max_tokens=3000,
+            system="You maintain concise, evidence-grounded RTL design memory.",
+            messages=[{"role": "user", "content": _build_initial_ledger_prompt(
+                decomp, problem_desc, design_specs, testbench,
+            )}],
+        )
+        ledger = resp.content[0].text.strip() or ledger
+    except Exception as e:
+        logger.warning("C4m initial ledger: %s", e)
+
+    modules = {top_name: decomp.top_source}
+    module_histories: Dict[str, List[Dict]] = {}
+    module_solve_rounds = {}
+
+    for idx, sub in enumerate(decomp.sub_modules):
+        context = _sub_context(decomp, idx)
+        study_prompt = (
+            _build_study_prompt(sub, context, design_specs, testbench,
+                                sub.reference_source)
+            + f"\n\n## Global Evidence Ledger\n{ledger}\n"
+        )
+        module_histories[sub.name] = [{"role": "user", "content": study_prompt}]
+        try:
+            total_calls += 1
+            resp = client.messages.create(
+                model=model, max_tokens=8000,
+                system=_C4M_SYSTEM.format(module=sub.name),
+                messages=module_histories[sub.name],
+            )
+            reply = resp.content[0].text
+            module_histories[sub.name].append({"role": "assistant", "content": reply})
+            source = _extract_verilog(reply)
+            modules[sub.name] = source if source else sub.reference_source
+        except Exception as e:
+            logger.warning("C4m %s initial: %s", sub.name, e)
+            modules[sub.name] = sub.reference_source
+
+    best_passes, best_total = 0, 0
+    best_modules = None
+    golden_correct, golden_total_count = 0, 0
+    max_total_calls = 30
+    rnd = 0
+
+    while total_calls < max_total_calls:
+        rnd += 1
+        full_modules = dict(modules)
+        full_modules[top_name] = decomp.top_source
+        sim = simulate(full_modules, testbench, timeout=60, data_dir=data_dir)
+
+        golden_feedback = ""
+        if sim.compiled:
+            p, t = _count_tb_passes(sim.stdout)
+            if data_dir and p == t and t > 0:
+                gp, gt, gdetail = _simulate_golden(full_modules, testbench, data_dir)
+                golden_correct, golden_total_count = gp, gt
+                if gt > 0 and gp == gt:
+                    best_passes, best_total = gp, gt
+                    logger.info("C4m GOLDEN VERIFIED at round %d (%d/%d)", rnd, gp, gt)
+                    break
+                if gt > 0:
+                    p, t = gp, gt
+                    best_passes = max(best_passes, gp)
+                    best_total = gt
+                    golden_feedback = (
+                        f"\n\n## Golden Output Comparison ({gp}/{gt} correct)\n"
+                        f"```\n{gdetail}\n```\n"
+                    )
+            elif p == t and t > 0 and not data_dir:
+                best_passes, best_total = p, t
+                best_modules = dict(full_modules)
+                logger.info("C4m SOLVED at round %d (%d/%d)", rnd, p, t)
+                break
+            if t > 0 and p > best_passes:
+                best_passes, best_total = p, t
+                best_modules = dict(full_modules)
+        else:
+            p, t = 0, 0
+
+        culprit, scores = _localize_fault(
+            top_name, decomp, modules, testbench, data_dir,
+        )
+        if culprit is None:
+            culprit = min(
+                (s.name for s in decomp.sub_modules),
+                key=lambda n: scores.get(n, (0, 0))[0],
+            )
+        culprit_sub = next((s for s in decomp.sub_modules if s.name == culprit), None)
+        if culprit_sub is None:
+            break
+
+        if total_calls + 2 <= max_total_calls:
+            try:
+                total_calls += 1
+                resp = client.messages.create(
+                    model=model, max_tokens=3000,
+                    system="You maintain concise, evidence-grounded RTL design memory.",
+                    messages=[{"role": "user", "content": _build_ledger_update_prompt(
+                        ledger, culprit, p, t, sim, scores, golden_feedback,
+                    )}],
+                )
+                updated = resp.content[0].text.strip()
+                if updated:
+                    ledger = updated
+            except Exception as e:
+                logger.warning("C4m ledger update rnd %d: %s", rnd, e)
+
+        fail_details = _parse_fail_details(sim.stdout) if sim.compiled else (
+            sim.compile_error or sim.stderr or "Unknown compilation error"
+        )[:800]
+        ref_warning = ""
+        if not ref_ok:
+            ref_warning = (
+                f"\n\n## Reference Reliability Warning\n"
+                f"The decomposer reference composition only scores "
+                f"{ref_passes}/{ref_total}. Use reference code as a hint, not as "
+                f"ground truth. Prefer simulator failures, ledger facts, and "
+                f"system-level score movement over blindly copying reference logic.\n"
+            )
+
+        repair_prompt = (
+            f"## Global Evidence Ledger\n{ledger}\n\n"
+            f"## Current System Score\n{p}/{t}\n\n"
+            f"## Fault Localization\n"
+            f"`{culprit}` is the current repair target.\n\n"
+            f"### Reference-Swap Scores\n{_summarize_scores(scores)}\n\n"
+            f"### System Failures\n```\n{fail_details}\n```\n"
+            f"{golden_feedback}\n"
+            f"## Current `{culprit}` Implementation\n"
+            f"```verilog\n{modules[culprit]}\n```\n\n"
+            f"## Reference Implementation\n"
+            f"```verilog\n{culprit_sub.reference_source}\n```\n\n"
+            f"{ref_warning}"
+            f"## Task\n"
+            f"Use the ledger to preserve global consistency. Diagnose whether the "
+            f"failure is numeric format, latency, interface, indexing, sign, or "
+            f"algorithmic. Then provide the corrected implementation of only "
+            f"`{culprit}` inside <file name=\"{culprit}.v\" type=\"implementation\"> tags."
+        )
+
+        history = module_histories.setdefault(culprit, [])
+        history.append({"role": "user", "content": repair_prompt})
+        if len(history) > 10:
+            history[:] = history[:2] + history[-8:]
+
+        try:
+            total_calls += 1
+            resp = client.messages.create(
+                model=model, max_tokens=8000,
+                system=_C4M_SYSTEM.format(module=culprit),
+                messages=history,
+            )
+            reply = resp.content[0].text
+            history.append({"role": "assistant", "content": reply})
+            source = _extract_verilog(reply)
+            if source:
+                modules[culprit] = source
+        except Exception as e:
+            logger.warning("C4m repair %s rnd %d: %s", culprit, rnd, e)
+
+    final_modules = dict(best_modules) if best_modules else dict(modules)
+    final_modules[top_name] = decomp.top_source
+    sim = simulate(final_modules, testbench, timeout=60, data_dir=data_dir)
+    if not sim.compiled:
+        return {
+            "condition": "C4m", "solved": False, "llm_calls": total_calls,
+            "error": "final compile failed",
+            "decomp_modules": decomp.module_names,
+            "ref_passes": ref_passes, "ref_total": ref_total,
+            "module_solve_rounds": module_solve_rounds,
+            "golden_correct": 0, "golden_total": 0,
+            "ledger": ledger,
+            "_sources": dict(modules),
+            "_decomp_descriptions": {s.name: s.description for s in decomp.sub_modules},
+            "_top_source": decomp.top_source,
+        }
+
+    p, t = _count_tb_passes(sim.stdout)
+    solved = t > 0 and p == t
+    p, t, solved, gc, gt = _golden_verify_final(final_modules, testbench, data_dir, p, t, solved)
+    if gt > 0:
+        golden_correct, golden_total_count = gc, gt
+
+    return {
+        "condition": "C4m", "llm_calls": total_calls,
+        "best_passes": p, "total_tests": t,
+        "solved": solved, "decomp_modules": decomp.module_names,
+        "ref_passes": ref_passes, "ref_total": ref_total,
+        "golden_correct": golden_correct, "golden_total": golden_total_count,
+        "module_solve_rounds": module_solve_rounds,
+        "ledger": ledger,
+        "_sources": dict(modules),
+        "_decomp_descriptions": {s.name: s.description for s in decomp.sub_modules},
+        "_top_source": decomp.top_source,
+    }
+
+
+# ---------------------------------------------------------------------------
+# C4a: Adaptive Decomposition CEGIS
+# ---------------------------------------------------------------------------
+
+_C4A_SYSTEM = (
+    "You are an expert RTL synthesis and verification engineer. "
+    "You repair decomposed Verilog systems using simulator evidence. "
+    "Treat decomposer references as unreliable unless they pass the system "
+    "testbench. Preserve global consistency across top-level FSM, module "
+    "interfaces, fixed-point arithmetic, signedness, latency, and output "
+    "protocol.\n\n"
+    "When writing Verilog, wrap it in "
+    "<file name=\"{module}.v\" type=\"implementation\">...</file> tags."
+)
+
+
+def _extract_json_object(text: str) -> dict:
+    """Best-effort parse of the first JSON object in an LLM response."""
+    if not text:
+        return {}
+    try:
+        return json.loads(text)
+    except Exception:
+        pass
+    m = re.search(r"\{.*\}", text, re.DOTALL)
+    if not m:
+        return {}
+    try:
+        return json.loads(m.group(0))
+    except Exception:
+        return {}
+
+
+def _module_inventory(top_name: str, decomp) -> str:
+    rows = [f"- `{top_name}`: top-level glue/FSM and module wiring"]
+    rows.extend(f"- `{s.name}`: {s.description}" for s in decomp.sub_modules)
+    return "\n".join(rows)
+
+
+def _source_bundle(modules: Dict[str, str], limit: int = 18000) -> str:
+    parts = []
+    used = 0
+    for name, src in modules.items():
+        chunk = f"\n## {name}.v\n```verilog\n{src}\n```\n"
+        if used + len(chunk) > limit:
+            remaining = max(0, limit - used)
+            if remaining > 200:
+                parts.append(chunk[:remaining] + "\n```")
+            break
+        parts.append(chunk)
+        used += len(chunk)
+    return "\n".join(parts)
+
+
+def _critic_prompt(
+    top_name: str, decomp, ledger: str, p: int, t: int,
+    best_passes: int, best_total: int, sim, scores: Dict[str, Tuple[int, int]],
+    ref_ok: bool, ref_passes: int, ref_total: int, stall_rounds: int,
+    last_targets: List[str],
+) -> str:
+    failures = _parse_fail_details(sim.stdout) if sim and sim.compiled else (
+        (sim.compile_error or sim.stderr or "Unknown compilation error") if sim else "No simulation"
+    )
+    return (
+        "Choose the next repair target for Adaptive Decomposition CEGIS.\n\n"
+        "The top module is a valid repair target when the failure looks like "
+        "FSM, latching, latency, valid/ready, coefficient capture, module wiring, "
+        "or integration logic. Do not blindly trust decomposer reference modules "
+        "when the reference composition fails.\n\n"
+        f"## Candidate Targets\n{_module_inventory(top_name, decomp)}\n\n"
+        f"## Reference Reliability\n"
+        f"reference_ok={ref_ok}, reference_score={ref_passes}/{ref_total}\n\n"
+        f"## Current Score\n{p}/{t}\n\n"
+        f"## Best Score So Far\n{best_passes}/{best_total}\n\n"
+        f"## Stall Rounds\n{stall_rounds}\n\n"
+        f"## Recent Targets\n{', '.join(last_targets[-5:]) or '(none)'}\n\n"
+        f"## Reference-Swap Scores\n{_summarize_scores(scores)}\n\n"
+        f"## Global Evidence Ledger\n{ledger}\n\n"
+        f"## Failures\n```\n{failures[:1600]}\n```\n\n"
+        "Return only JSON with this schema:\n"
+        "{\n"
+        f"  \"target\": \"one of: {top_name}, " + ", ".join(s.name for s in decomp.sub_modules) + "\",\n"
+        "  \"diagnosis\": \"short concrete root-cause hypothesis\",\n"
+        "  \"ledger_update\": \"one or two concise evidence facts to add\"\n"
+        "}\n"
+    )
+
+
+def _adaptive_repair_prompt(
+    target: str, diagnosis: str, top_name: str, decomp, modules: Dict[str, str],
+    ledger: str, p: int, t: int, sim, scores: Dict[str, Tuple[int, int]],
+    ref_ok: bool, ref_passes: int, ref_total: int,
+) -> str:
+    failures = _parse_fail_details(sim.stdout) if sim and sim.compiled else (
+        (sim.compile_error or sim.stderr or "Unknown compilation error") if sim else "No simulation"
+    )
+    sub = next((s for s in decomp.sub_modules if s.name == target), None)
+    reference = ""
+    if sub is not None:
+        reference = (
+            f"## Decomposer Reference for `{target}`\n"
+            f"Use only as a hint unless reference_ok is true.\n"
+            f"```verilog\n{sub.reference_source}\n```\n\n"
+        )
+    ref_warning = ""
+    if not ref_ok:
+        ref_warning = (
+            f"## Reference Reliability Warning\n"
+            f"The composed decomposer reference scores {ref_passes}/{ref_total}, "
+            f"so reference modules are not an oracle. Prefer simulator evidence "
+            f"and preserve any behavior that improved the system score.\n\n"
+        )
+    source_context = _source_bundle(modules, limit=22000 if target == top_name else 14000)
+    return (
+        f"Repair target: `{target}`.\n\n"
+        f"## Critic Diagnosis\n{diagnosis}\n\n"
+        f"## Current Score\n{p}/{t}\n\n"
+        f"## Global Evidence Ledger\n{ledger}\n\n"
+        f"## Candidate Targets\n{_module_inventory(top_name, decomp)}\n\n"
+        f"## Reference-Swap Scores\n{_summarize_scores(scores)}\n\n"
+        f"## System Failures\n```\n{failures[:1800]}\n```\n\n"
+        f"{ref_warning}"
+        f"## Current Sources\n{source_context}\n\n"
+        f"{reference}"
+        f"## Task\n"
+        f"Diagnose the exact root cause and provide the corrected implementation "
+        f"of only `{target}`. Preserve the exact module name and ports. "
+        f"Wrap the full replacement in <file name=\"{target}.v\" "
+        f"type=\"implementation\">...</file> tags."
+    )
+
+
+def run_C4a(
+    top_name: str, testbench: str, model: str,
+    client: "LLMClient", problem_desc: str, design_specs: str,
+    data_dir: Optional[str] = None,
+) -> dict:
+    """Adaptive Decomposition CEGIS.
+
+    Adds three safeguards over C4tl/C4m: top-level repair, elite preservation,
+    and a global critic that distrusts bad decomposer references.
+    """
+    decomp = decompose(
+        problem_desc, design_specs, testbench,
+        model=model, client=client, top_module_name=top_name,
+    )
+    total_calls = 1
+
+    ref_modules = {top_name: decomp.top_source}
+    ref_modules.update(decomp.reference_modules)
+    ref_sim = simulate(ref_modules, testbench, timeout=60, data_dir=data_dir)
+    ref_passes, ref_total = 0, 0
+    if ref_sim.compiled:
+        ref_passes, ref_total = _count_tb_passes(ref_sim.stdout)
+    ref_ok = ref_total > 0 and ref_passes == ref_total
+
+    ledger = "## Global Evidence Ledger\n- No evidence recorded yet.\n"
+    try:
+        total_calls += 1
+        resp = client.messages.create(
+            model=model, max_tokens=3000,
+            system="You maintain concise, evidence-grounded RTL design memory.",
+            messages=[{"role": "user", "content": _build_initial_ledger_prompt(
+                decomp, problem_desc, design_specs, testbench,
+            )}],
+        )
+        ledger = resp.content[0].text.strip() or ledger
+    except Exception as e:
+        logger.warning("C4a initial ledger: %s", e)
+
+    modules = {top_name: decomp.top_source}
+    histories: Dict[str, List[Dict]] = {}
+
+    for idx, sub in enumerate(decomp.sub_modules):
+        context = _sub_context(decomp, idx)
+        prompt = (
+            _build_study_prompt(sub, context, design_specs, testbench,
+                                sub.reference_source)
+            + f"\n\n## Global Evidence Ledger\n{ledger}\n"
+        )
+        histories[sub.name] = [{"role": "user", "content": prompt}]
+        try:
+            total_calls += 1
+            resp = client.messages.create(
+                model=model, max_tokens=8000,
+                system=_C4A_SYSTEM.format(module=sub.name),
+                messages=histories[sub.name],
+            )
+            reply = resp.content[0].text
+            histories[sub.name].append({"role": "assistant", "content": reply})
+            source = _extract_verilog(reply)
+            modules[sub.name] = source if source else sub.reference_source
+        except Exception as e:
+            logger.warning("C4a %s initial: %s", sub.name, e)
+            modules[sub.name] = sub.reference_source
+
+    histories[top_name] = []
+    best_modules = dict(modules)
+    best_passes, best_total = 0, 0
+    golden_correct, golden_total_count = 0, 0
+    last_improve_round = 0
+    last_targets: List[str] = []
+    module_solve_rounds = {}
+    max_total_calls = 40
+    rnd = 0
+
+    while total_calls < max_total_calls:
+        rnd += 1
+        full_modules = dict(modules)
+        full_modules[top_name] = modules[top_name]
+        sim = simulate(full_modules, testbench, timeout=60, data_dir=data_dir)
+
+        if sim.compiled:
+            p, t = _count_tb_passes(sim.stdout)
+            if data_dir and p == t and t > 0:
+                gp, gt, _ = _simulate_golden(full_modules, testbench, data_dir)
+                golden_correct, golden_total_count = gp, gt
+                if gt > 0:
+                    p, t = gp, gt
+            if t > 0 and p > best_passes:
+                best_passes, best_total = p, t
+                best_modules = dict(full_modules)
+                last_improve_round = rnd
+            if t > 0 and p == t:
+                logger.info("C4a SOLVED at round %d (%d/%d)", rnd, p, t)
+                best_modules = dict(full_modules)
+                best_passes, best_total = p, t
+                break
+        else:
+            p, t = 0, 0
+
+        scores = {}
+        culprit = None
+        if ref_ok:
+            culprit, scores = _localize_fault(
+                top_name, decomp, modules, testbench, data_dir,
+            )
+
+        critic = {}
+        if total_calls + 2 <= max_total_calls:
+            try:
+                total_calls += 1
+                resp = client.messages.create(
+                    model=model, max_tokens=2500,
+                    system="You are a concise RTL debugging critic. Return JSON only.",
+                    messages=[{"role": "user", "content": _critic_prompt(
+                        top_name, decomp, ledger, p, t, best_passes, best_total,
+                        sim, scores, ref_ok, ref_passes, ref_total,
+                        rnd - last_improve_round, last_targets,
+                    )}],
+                )
+                critic = _extract_json_object(resp.content[0].text)
+            except Exception as e:
+                logger.warning("C4a critic rnd %d: %s", rnd, e)
+
+        valid_targets = [top_name] + decomp.module_names
+        target = str(critic.get("target") or culprit or top_name)
+        if target not in valid_targets:
+            target = top_name if not ref_ok or rnd - last_improve_round >= 2 else valid_targets[1]
+        diagnosis = str(critic.get("diagnosis") or "Repair the target using current simulator evidence.")
+        ledger_update = str(critic.get("ledger_update") or "").strip()
+        if ledger_update:
+            ledger = ledger.rstrip() + f"\n- {ledger_update}\n"
+        last_targets.append(target)
+
+        repair_prompt = _adaptive_repair_prompt(
+            target, diagnosis, top_name, decomp, modules, ledger, p, t, sim,
+            scores, ref_ok, ref_passes, ref_total,
+        )
+        history = histories.setdefault(target, [])
+        history.append({"role": "user", "content": repair_prompt})
+        if len(history) > 10:
+            history[:] = history[:2] + history[-8:]
+
+        try:
+            total_calls += 1
+            resp = client.messages.create(
+                model=model, max_tokens=8000,
+                system=_C4A_SYSTEM.format(module=target),
+                messages=history,
+            )
+            reply = resp.content[0].text
+            history.append({"role": "assistant", "content": reply})
+            source = _extract_verilog(reply)
+            if source:
+                modules[target] = source
+        except Exception as e:
+            logger.warning("C4a repair %s rnd %d: %s", target, rnd, e)
+
+    final_modules = dict(best_modules)
+    sim = simulate(final_modules, testbench, timeout=60, data_dir=data_dir)
+    if not sim.compiled:
+        return {
+            "condition": "C4a", "solved": False, "llm_calls": total_calls,
+            "error": "final compile failed",
+            "decomp_modules": decomp.module_names,
+            "ref_passes": ref_passes, "ref_total": ref_total,
+            "module_solve_rounds": module_solve_rounds,
+            "golden_correct": 0, "golden_total": 0,
+            "ledger": ledger,
+            "_sources": dict(best_modules),
+            "_decomp_descriptions": {s.name: s.description for s in decomp.sub_modules},
+            "_top_source": best_modules.get(top_name, decomp.top_source),
+        }
+
+    p, t = _count_tb_passes(sim.stdout)
+    solved = t > 0 and p == t
+    p, t, solved, gc, gt = _golden_verify_final(final_modules, testbench, data_dir, p, t, solved)
+    if gt > 0:
+        golden_correct, golden_total_count = gc, gt
+    return {
+        "condition": "C4a", "llm_calls": total_calls,
+        "best_passes": p, "total_tests": t,
+        "solved": solved, "decomp_modules": decomp.module_names,
+        "ref_passes": ref_passes, "ref_total": ref_total,
+        "golden_correct": golden_correct, "golden_total": golden_total_count,
+        "module_solve_rounds": module_solve_rounds,
+        "ledger": ledger,
+        "_sources": dict(best_modules),
+        "_decomp_descriptions": {s.name: s.description for s in decomp.sub_modules},
+        "_top_source": best_modules.get(top_name, decomp.top_source),
+    }
+
+
+# ---------------------------------------------------------------------------
 # C5: Full autonomous decompose-test-evolve
 # ---------------------------------------------------------------------------
 
@@ -1551,6 +2166,10 @@ def run_cell(
                              condition_label="C4i-noRef", show_ref=False)
         elif condition == "C4tl":
             result = run_C4tl(top_name, testbench, model, client, problem_desc, design_specs, data_dir)
+        elif condition == "C4m":
+            result = run_C4m(top_name, testbench, model, client, problem_desc, design_specs, data_dir)
+        elif condition == "C4a":
+            result = run_C4a(top_name, testbench, model, client, problem_desc, design_specs, data_dir)
         elif condition == "C5":
             result = run_C5(top_name, testbench, model, client, problem_desc, design_specs, cell_dir, data_dir)
         else:

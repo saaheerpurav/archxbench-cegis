@@ -789,5 +789,31 @@
     "wall_seconds": 1479.9,
     "total_input_tokens": 0,
     "total_output_tokens": 0
+  },
+  "newton_raphson_polynomial__C4m__gpt-5.5__456": {
+    "condition": "C4m",
+    "llm_calls": 30,
+    "best_passes": 86,
+    "total_tests": 100,
+    "solved": false,
+    "decomp_modules": [
+      "nr_poly_eval",
+      "nr_derivative_eval",
+      "nr_update_step",
+      "nr_convergence_check",
+      "nr_root_verify"
+    ],
+    "ref_passes": 9,
+    "ref_total": 100,
+    "golden_correct": 0,
+    "golden_total": 0,
+    "module_solve_rounds": {},
+    "ledger": "- **Fixed-point format:** Testbench uses `WIDTH=16`, `FRAC=8`; numeric DUT ports are signed fixed-point with scale `real = fixed / 2^FRAC`.\n\n- **Signedness contract:** `x_init`, coefficients, and `root` are `signed [WIDTH-1:0]`; arithmetic must preserve signed semantics throughout.\n\n- **Polynomial:** Implement `p(x)=coeff0 + coeff1*x + coeff2*x^2 + coeff3*x^3`.\n\n- **Derivative:** Implement `p'(x)=coeff1 + 2*coeff2*x + 3*coeff3*x^2`.\n\n- **Fixed-point multiply:** Polynomial and derivative products require extended signed intermediates and signed rescale after multiplication, typically arithmetic `>>> FRAC`.\n\n- **Shift behavior:** Revision note requires `<<` instead of `<<<` for left shifts. Right shifts used for signed downscaling must preserve sign.\n\n- **Intermediate precision:** Multiplication, division numerator, polynomial accumulation, derivative accumulation, and Newton update arithmetic need extended signed width before final clamp.\n\n- **Newton update:** `nr_update_step` computes `x_next = x - p(x)/p'(x)` in fixed-point. Division must account for scale, typically `(p << FRAC) / derivative`, using signed extended operands.\n\n- **Update saturation:** `nr_update_step` output must saturate/clamp to signed `WIDTH` range before feeding the iteration state.\n\n- **Active repair target:** Current score is `96/100`; localization still points to `nr_update_step`.\n\n- **Reference-swap evidence:** Swapping `nr_convergence_check`, `nr_derivative_eval`, `nr_poly_eval`, or `nr_root_verify` to reference leaves score unchanged at `96/100`. Swapping `nr_update_step` to reference drops score to `9/100`; the reference update is incompatible/worse under this harness and should not be copied directly.\n\n- **Current root counterexamples:** Remaining root failures are `0.294549` and `0.552496`, both above `EPSILON=0.03125`.\n\n- **Current residual counterexamples:** Remaining residual failures are `|f(x)| = 0.625000` and `1.000000`, both above `EPSILON=0.03125`.\n\n- **Regression status:** Score is now `96/100`; failures are narrow and still tied to update-step numerical behavior or trajectory mismatch, not broad polynomial/derivative/verify/FSM failure.\n\n- **Zero derivative:** `nr_convergence_check` must detect zero or unusably small derivative and prevent divide-by-zero.\n\n- **Convergence:** Iteration completes when `|x_next - x|` is within tolerance or when `MAX_ITER` is reached.\n\n- **Verification:** `nr_root_verify` must evaluate residual `p(root)` and assert `valid=1` only when `|p(root)|` is within tolerance. Converged update magnitude alone is insufficient.\n\n- **Top-level FSM:** Required flow is effectively `IDLE -> CALC -> VERIFY -> DONE`.\n\n- **Start behavior:** In `IDLE`, `start` latches `x_init` and coefficients. Inputs are stable only at start/latch time.\n\n- **Ready behavior:** `ready` remains low during `IDLE/CALC/VERIFY` and asserts only in `DONE`.\n\n- **Done behavior:** Spec says the design remains in `DONE` until reset; `ready`, final `root`, and `valid` should hold.\n\n- **Reset behavior:** Reset clears state, iteration counter, `ready`, `valid`, and output/root registers deterministically.\n\n- **Latency:** Sequential top-level latency is variable up to `MAX_ITER` plus verification/FSM overhead. Combinational submodules have no independent valid/ready unless wrapped.\n\n- **Testbench expectation:** Testbench waits for `ready`, then compares signed fixed-point `root` against behavioral real Newton result converted to fixed-point.\n\n- **Root accuracy threshold:** Root comparison uses `EPSILON=8`, equivalent to `8/256 = 0.03125`.\n\n- **Residual expectation:** Testbench also evaluates `p(root)` in real arithmetic; `valid` should align with residual tolerance, not just iteration count.\n\n- **Multiple roots:** Newton-Raphson is local; result should match the behavioral solver from the same `x_init`.\n\n- **Coefficient range risk:** Tests include negative coefficients, fractional coefficients such as `0.5` and `0.2`, zero cubic terms, and larger values such as `10`, `-15`.\n\n- **Likely remaining failure modes:** signed fixed-point division scaling or rounding in `nr_update_step`, sign extension before division, update clamp edge cases, derivative edge handling inside update math, or off-by-one/update-result mismatch against the behavioral Newton trajectory.",
+    "design": "newton_raphson_polynomial",
+    "model": "gpt-5.5",
+    "seed": 456,
+    "wall_seconds": 1639.5,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0
   }
 }

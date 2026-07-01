@@ -1,0 +1,10 @@
+{
+  "top_source_file": "verilog/dct1d_8_block_control.v",
+  "sub_modules": {
+    "dct1d_8_block_control": "Combinational block completion and output index control.",
+    "dct1d_8_coeff_rom": "Combinational fixed-point cosine coefficient ROM for DCT and transposed IDCT access.",
+    "dct1d_8_matrix_mac": "Combinational 8-input matrix multiply and fixed-point Q14 scaling.",
+    "dct1d_8_round_scale": "Combinational output scaling pass-through stage for pipeline composition.",
+    "dct1d_8_saturate": "Combinational signed output limiter."
+  }
+}

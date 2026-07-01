@@ -1,0 +1,28 @@
+{
+  "newton_raphson_polynomial__C4m__gpt-5.5__456": {
+    "condition": "C4m",
+    "llm_calls": 30,
+    "best_passes": 17,
+    "total_tests": 100,
+    "solved": false,
+    "decomp_modules": [
+      "nr_poly_eval_cubic",
+      "nr_derivative_eval_cubic",
+      "nr_newton_step",
+      "nr_root_verify",
+      "nr_saturate_signed"
+    ],
+    "ref_passes": 17,
+    "ref_total": 100,
+    "golden_correct": 0,
+    "golden_total": 0,
+    "module_solve_rounds": {},
+    "ledger": "- **Fixed-point format:** Public numeric ports are signed fixed-point values. Testbench declares `x_init`, coefficients, and `root` as `signed [WIDTH-1:0]`; negative inputs and roots must work in two's complement.\n\n- **Default parameters:** Testbench uses `WIDTH=16`, `FRAC=8`, `MAX_ITER=50`. One LSB is `1/256`; `EPSILON=8` means tolerance is `0.03125`.\n\n- **Polynomial contract:** `p(x) = coeff0 + coeff1*x + coeff2*x^2 + coeff3*x^3`. Coefficients use the same signed Q format as `x`.\n\n- **Derivative contract:** `p'(x) = coeff1 + 2*coeff2*x + 3*coeff3*x^2`. Fixed-point scaling must be preserved after every multiply.\n\n- **Evaluator expectation:** `nr_poly_eval_cubic` and `nr_derivative_eval_cubic` are combinational Horner-style evaluators. Products must be widened, shifted right by `FRAC`, accumulated with enough precision, then narrowed safely.\n\n- **Shift rule:** Use `<<` for left scaling operations. Signedness must come from signed operands/registers, not `<<<`.\n\n- **Newton update contract:** `nr_newton_step` computes `x_next = x - p(x)/p'(x)`. Division must scale the numerator before divide so the quotient remains Q`WIDTH.FRAC`.\n\n- **Division edge case:** Zero or near-zero derivative needs deterministic handling such as hold, saturate, or invalid. Unhandled divide-by-zero can stall, explode, or wrap.\n\n- **Saturation contract:** `nr_saturate_signed` must narrow extended signed values to `WIDTH` bits with signed saturation, not wraparound.\n\n- **Top-level FSM contract:** Top module has `IDLE`, `CALC`, `VERIFY`, and `DONE` behavior. `start` is sampled in `IDLE`, latching `x_init` and coefficients for the run.\n\n- **Completion contract:** `ready` asserts only after final `root` is available and verification has completed. `valid` reflects verification success, not merely iteration completion.\n\n- **DONE behavior:** Specification says remain in `DONE` until reset. `ready` should stay asserted in `DONE`; accepting restart is not required unless explicitly implemented.\n\n- **Reset behavior:** Reset returns to `IDLE`, clears `ready` and `valid`, and puts `root` and iteration state into deterministic values.\n\n- **Convergence contract:** Iteration may stop on convergence or after `MAX_ITER`, but output must match the behavioral 50-iteration Newton reference within fixed-point tolerance.\n\n- **Verification contract:** `nr_root_verify` checks `|p(root)| <= tolerance`. `valid=1` only if this criterion passes.\n\n- **Output contract:** `root` is the fixed-point encoded root. Testbench converts with `root / 2^FRAC` and compares against a real-valued Newton reference.\n\n- **Current evidence:** System score remains `17/100`.\n\n- **Localization evidence:** Harness reports `nr_poly_eval_cubic` as localized culprit, but replacing `nr_poly_eval_cubic` alone with reference leaves score unchanged at `17/100`.\n\n- **Reference-swap evidence:** Swapping any single leaf module to reference leaves score unchanged at `17/100`: `nr_derivative_eval_cubic`, `nr_newton_step`, `nr_poly_eval_cubic`, `nr_root_verify`, and `nr_saturate_signed`.\n\n- **Localization constraint:** `nr_poly_eval_cubic` is not proven as the sole global culprit. Single-leaf fixes are unlikely to change score unless top-level/control or multi-module interaction issues are also addressed.\n\n- **Root counterexamples:** Failures include modest misses near tolerance: `0.130898`, `0.306267`, `1.211346`; and catastrophic divergence/wrap-scale symptoms: `25.892870`, `86.218750`, `86.222656`, `128.724318`, `129.000000`.\n\n- **Residual counterexamples:** Polynomial verification failures include small invalid residuals: `0.312500`, `0.625824`, `2.187500`; and huge residuals: `3115.280333`, `313156.425441`, `626227.072968`, `2113665.000000`.\n\n- **Most useful repair targets:** Prioritize top-level integration/control, signal wiring, state sequencing, coefficient/root latching, verification timing, premature `ready`, unstable `root` at completion, and `valid` not tied to real polynomial verification.\n\n- **Still-plausible data-path causes:** signedness loss for negative values, fixed-point scale loss after multiply/divide, wraparound where saturation is required, unhandled derivative zero/near-zero, and bad quotient scaling.",
+    "design": "newton_raphson_polynomial",
+    "model": "gpt-5.5",
+    "seed": 456,
+    "wall_seconds": 1395.0,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0
+  }
+}

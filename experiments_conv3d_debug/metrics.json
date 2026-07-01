@@ -1,0 +1,42 @@
+{
+  "conv_3d__C4tl__gpt-5.5__42": {
+    "condition": "C4tl",
+    "llm_calls": 29,
+    "best_passes": 0,
+    "total_tests": 0,
+    "solved": false,
+    "decomp_modules": [
+      "conv3d_window_valid",
+      "conv3d_window_pack",
+      "conv3d_mac",
+      "conv3d_output_format",
+      "conv3d_done_ctrl"
+    ],
+    "ref_passes": 0,
+    "ref_total": 0,
+    "golden_correct": 0,
+    "golden_total": 0,
+    "module_solve_rounds": {},
+    "design": "conv_3d",
+    "model": "gpt-5.5",
+    "seed": 42,
+    "wall_seconds": 2609.5,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0
+  },
+  "conv_3d__C2g__gpt-5.5__42": {
+    "condition": "C2g",
+    "llm_calls": 30,
+    "best_passes": 0,
+    "total_tests": 0,
+    "solved": false,
+    "golden_correct": 0,
+    "golden_total": 0,
+    "design": "conv_3d",
+    "model": "gpt-5.5",
+    "seed": 42,
+    "wall_seconds": 2611.0,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0
+  }
+}

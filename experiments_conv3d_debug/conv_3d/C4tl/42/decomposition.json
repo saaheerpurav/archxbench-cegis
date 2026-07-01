@@ -1,0 +1,10 @@
+{
+  "top_source_file": "verilog/conv3d_window_valid.v",
+  "sub_modules": {
+    "conv3d_window_valid": "Combinational valid-region detector for valid-padding 3D convolution windows.",
+    "conv3d_window_pack": "Combinational 3D window forwarding and packing boundary between buffering and compute.",
+    "conv3d_mac": "Combinational multiply-accumulate engine over the flattened K1 by K2 by K3 window and kernel.",
+    "conv3d_output_format": "Combinational output-width formatter that truncates the accumulator to the required voxel output width.",
+    "conv3d_done_ctrl": "Combinational end-of-volume done flag generation from valid_in and last_in."
+  }
+}

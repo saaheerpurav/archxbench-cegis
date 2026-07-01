@@ -1,0 +1,10 @@
+{
+  "top_source_file": "verilog/nr_poly_eval_cubic.v",
+  "sub_modules": {
+    "nr_poly_eval_cubic": "Combinational fixed-point Horner evaluator for the cubic polynomial p(x).",
+    "nr_derivative_eval_cubic": "Combinational fixed-point Horner evaluator for the cubic derivative p'(x).",
+    "nr_newton_step": "Combinational Newton-Raphson update block using extended-width fixed-point division.",
+    "nr_root_verify": "Combinational verification block that checks whether |p(root)| is within tolerance.",
+    "nr_saturate_signed": "Combinational signed saturation helper for narrowing extended results to output width."
+  }
+}
