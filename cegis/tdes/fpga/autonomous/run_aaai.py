@@ -51,7 +51,7 @@ from cegis.tdes.fpga.autonomous.orchestrator import (
     _save_outputs,
     PipelineResult,
 )
-from cegis.tdes.fpga.verilog_runner import simulate, suppress_windows_error_dialogs
+from cegis.tdes.fpga.verilog_runner import simulate, suppress_windows_error_dialogs, _run, find_tool
 from cegis.tdes.fpga.verilog_suite import VerilogTest, VerilogTestSuite
 from cegis.tdes.types import Candidate, TestLevel, TestVector
 
@@ -184,6 +184,11 @@ def _count_tb_passes(sim_output: str) -> Tuple[int, int]:
     return passes, passes + fails
 
 
+def _shorten(text: Optional[str], limit: int) -> str:
+    text = (text or "").strip()
+    return text if len(text) <= limit else text[: limit - 3] + "..."
+
+
 def _has_icarus_sensitivity_warning(sim_stderr: str) -> bool:
     """Detect 'always @* found no sensitivities' — causes all-x outputs."""
     return "found no sensitivities" in (sim_stderr or "")
@@ -193,57 +198,49 @@ def _run_golden_comparison(data_dir: str, sim_workdir: str) -> Tuple[int, int, s
     """Run post-sim golden comparison for L5/L6 designs.
 
     Compares outputs/dut_output.json against outputs/golden_output.json.
+    The DCT/IDCT benchmark is a special case with separate DCT and IDCT
+    reference files.
     Returns (passes, total, detail_string).
     """
     import json as _json
 
-    dut_path = os.path.join(sim_workdir, "outputs", "dut_output.json")
-    golden_path = os.path.join(data_dir, "outputs", "golden_output.json")
+    def _load(path: str):
+        with open(path) as fh:
+            return _json.load(fh)
 
-    if not os.path.exists(dut_path):
-        return 0, 1, "DUT output file not written"
-    if not os.path.exists(golden_path):
-        return 0, 1, "Golden output file not found"
+    def _flatten(value):
+        if isinstance(value, dict):
+            value = list(value.values())
+        if isinstance(value, list) and value and isinstance(value[0], list):
+            value = [x for row in value for x in row]
+        return value
 
-    try:
-        dut = _json.load(open(dut_path))
-        golden = _json.load(open(golden_path))
-    except Exception as e:
-        return 0, 1, f"JSON parse error: {e}"
+    def _compare(golden, dut, label: str) -> Tuple[int, int, str]:
+        golden = _flatten(golden)
+        dut = _flatten(dut)
 
-    # Flatten if nested
-    if isinstance(dut, dict):
-        dut = list(dut.values())
-    if isinstance(golden, dict):
-        golden = list(golden.values())
-    if isinstance(dut, list) and dut and isinstance(dut[0], list):
-        dut = [x for row in dut for x in row]
-    if isinstance(golden, list) and golden and isinstance(golden[0], list):
-        golden = [x for row in golden for x in row]
+        if not golden:
+            return 0, 1, f"{label}: golden output is empty"
+        if not dut:
+            return 0, len(golden), f"{label}: DUT produced no output"
 
-    if not golden:
-        return 0, 1, "Golden output is empty"
-    if not dut:
-        return 0, len(golden), "DUT produced no output"
+        n_compare = min(len(golden), len(dut))
+        n_total = len(golden)
 
-    n_compare = min(len(golden), len(dut))
-    n_total = len(golden)  # DUT must match ALL golden entries
+        mismatches = []
+        for i in range(n_compare):
+            try:
+                if abs(float(golden[i]) - float(dut[i])) > 1:
+                    mismatches.append((i, golden[i], dut[i]))
+            except (TypeError, ValueError):
+                if golden[i] != dut[i]:
+                    mismatches.append((i, golden[i], dut[i]))
 
-    mismatches = []
-    for i in range(n_compare):
-        try:
-            if abs(float(golden[i]) - float(dut[i])) > 1:
-                mismatches.append((i, golden[i], dut[i]))
-        except (TypeError, ValueError):
-            if golden[i] != dut[i]:
-                mismatches.append((i, golden[i], dut[i]))
+        missing = n_total - len(dut) if len(dut) < n_total else 0
+        passes = n_total - len(mismatches) - missing
+        if not mismatches and missing == 0:
+            return passes, n_total, f"{label}: PASS All {n_total} samples match"
 
-    # Missing DUT entries count as mismatches
-    missing = n_total - len(dut) if len(dut) < n_total else 0
-    passes = n_total - len(mismatches) - missing
-    if not mismatches and missing == 0:
-        detail = f"PASS All {n_total} samples match"
-    else:
         first5 = [f"  idx={i}: expected={r} got={d}" for i, r, d in mismatches[:5]]
         last5 = [f"  idx={i}: expected={r} got={d}" for i, r, d in mismatches[-5:]] if len(mismatches) > 5 else []
         errs = []
@@ -257,13 +254,59 @@ def _run_golden_comparison(data_dir: str, sim_workdir: str) -> Tuple[int, int, s
             err_info = f"\nError magnitudes: min={min(errs):.2f} max={max(errs):.2f} avg={sum(errs)/len(errs):.2f}"
         if len(golden) != len(dut):
             err_info += f"\nLength mismatch: golden has {len(golden)} entries, DUT has {len(dut)}"
-        detail = (f"FAIL {len(mismatches)+missing}/{n_total} mismatches ({passes}/{n_total} correct){err_info}\n"
+        detail = (f"{label}: FAIL {len(mismatches)+missing}/{n_total} mismatches ({passes}/{n_total} correct){err_info}\n"
                   f"First mismatches:\n" + "\n".join(first5))
         if last5 and last5 != first5:
             detail += f"\nLast mismatches:\n" + "\n".join(last5)
         if missing:
             detail += f"\nMissing {missing} DUT entries at the end"
-    return passes, n_total, detail
+        return passes, n_total, detail
+
+    dct_golden = os.path.join(data_dir, "outputs", "golden_dct.json")
+    idct_golden = os.path.join(data_dir, "outputs", "golden_idct.json")
+    dct_dut = os.path.join(sim_workdir, "outputs", "dut_dct.json")
+    idct_dut = os.path.join(sim_workdir, "outputs", "dut_idct.json")
+    if os.path.exists(dct_golden) or os.path.exists(idct_golden):
+        pairs = [
+            ("DCT", dct_golden, dct_dut),
+            ("IDCT", idct_golden, idct_dut),
+        ]
+        total_passes = 0
+        total_tests = 0
+        details = []
+        for label, golden_path, dut_path in pairs:
+            if not os.path.exists(golden_path):
+                details.append(f"{label}: golden output file not found")
+                total_tests += 1
+                continue
+            if not os.path.exists(dut_path):
+                details.append(f"{label}: DUT output file not written")
+                total_tests += 1
+                continue
+            try:
+                p, t, detail = _compare(_load(golden_path), _load(dut_path), label)
+            except Exception as e:
+                p, t, detail = 0, 1, f"{label}: JSON parse error: {e}"
+            total_passes += p
+            total_tests += t
+            details.append(detail)
+        return total_passes, total_tests, "\n\n".join(details)
+
+    dut_path = os.path.join(sim_workdir, "outputs", "dut_output.json")
+    golden_path = os.path.join(data_dir, "outputs", "golden_output.json")
+
+    if not os.path.exists(dut_path):
+        return 0, 1, "DUT output file not written"
+    if not os.path.exists(golden_path):
+        return 0, 1, "Golden output file not found"
+
+    try:
+        dut = _load(dut_path)
+        golden = _load(golden_path)
+    except Exception as e:
+        return 0, 1, f"JSON parse error: {e}"
+
+    return _compare(golden, dut, "golden_output")
 
 
 def _golden_verify_final(modules: dict, testbench: str, data_dir: Optional[str],
@@ -292,11 +335,14 @@ def _golden_verify_final(modules: dict, testbench: str, data_dir: Optional[str],
         with open(tb_file, "w") as f:
             f.write(testbench)
         srcs = [os.path.join(gtmp, fn) for fn in os.listdir(gtmp) if fn.endswith(".v")]
-        _sp.run(["iverilog", "-g2012", "-o", os.path.join(gtmp, "sim.vvp")] + srcs,
-                capture_output=True, text=True, encoding="utf-8", errors="replace")
-        _sp.run(["vvp", os.path.join(gtmp, "sim.vvp")],
-                capture_output=True, text=True, cwd=gtmp, timeout=120,
-                encoding="utf-8", errors="replace")
+        iverilog = find_tool(["iverilog"]) or "iverilog"
+        vvp = find_tool(["vvp"]) or "vvp"
+        _, _, _, c_timeout = _run([iverilog, "-g2012", "-o", os.path.join(gtmp, "sim.vvp")] + srcs, gtmp, 120)
+        if c_timeout:
+            return p, t, solved, 0, 0
+        _, _, _, r_timeout = _run([vvp, os.path.join(gtmp, "sim.vvp")], gtmp, 120)
+        if r_timeout:
+            return p, t, solved, 0, 0
         gp, gt, _ = _run_golden_comparison(data_dir, gtmp)
         if gt > 0:
             return gp, gt, gp == gt, gp, gt
@@ -325,13 +371,16 @@ def _simulate_golden(modules: dict, testbench: str, data_dir: str,
         with open(os.path.join(gtmp, "tb.v"), "w") as fh:
             fh.write(testbench)
         srcs = [os.path.join(gtmp, fn) for fn in os.listdir(gtmp) if fn.endswith(".v")]
-        cr = _sp.run(["iverilog", "-g2012", "-o", os.path.join(gtmp, "sim.vvp")] + srcs,
-                     capture_output=True, text=True, encoding="utf-8", errors="replace")
-        if cr.returncode != 0:
-            return 0, 0, f"compile error: {cr.stderr[:300]}"
-        _sp.run(["vvp", os.path.join(gtmp, "sim.vvp")],
-                capture_output=True, text=True, cwd=gtmp, timeout=timeout,
-                encoding="utf-8", errors="replace")
+        iverilog = find_tool(["iverilog"]) or "iverilog"
+        vvp = find_tool(["vvp"]) or "vvp"
+        cr, _, cerr, c_timeout = _run([iverilog, "-g2012", "-o", os.path.join(gtmp, "sim.vvp")] + srcs, gtmp, timeout)
+        if c_timeout:
+            return 0, 0, "compile timeout"
+        if cr != 0:
+            return 0, 0, f"compile error: {cerr[:300]}"
+        _, _, _, r_timeout = _run([vvp, os.path.join(gtmp, "sim.vvp")], gtmp, timeout)
+        if r_timeout:
+            return 0, 0, "simulation timeout"
         return _run_golden_comparison(data_dir, gtmp)
 
 
@@ -1174,25 +1223,115 @@ def run_C4tl(
     5. Repair only the culprit module with targeted feedback
     6. Repeat until solved or budget exhausted
     """
-    # Step 1: Decompose and validate reference
-    decomp = decompose(
-        problem_desc, design_specs, testbench,
-        model=model, client=client, top_module_name=top_name,
-    )
-    total_calls = 1
-
-    # Validate reference composition passes testbench
-    ref_modules = {top_name: decomp.top_source}
-    ref_modules.update(decomp.reference_modules)
-    ref_sim = simulate(ref_modules, testbench, timeout=60, data_dir=data_dir)
+    # Step 1: Decompose and validate reference. C4tl depends on the generated
+    # references as swap-in oracles, so a failed reference composition poisons
+    # fault localization. Retry decomposition with system-test feedback instead
+    # of continuing with an invalid scaffold.
+    total_calls = 0
+    decomp = None
     ref_passes, ref_total = 0, 0
-    if ref_sim.compiled:
-        ref_passes, ref_total = _count_tb_passes(ref_sim.stdout)
+    ref_failure_feedback = ""
+    ref_sim = None
+    max_decomp_attempts = 3
+    for decomp_attempt in range(max_decomp_attempts):
+        augmented_specs = design_specs
+        if ref_failure_feedback:
+            augmented_specs += (
+                "\n\n## Previous decomposition reference failed original system testbench\n\n"
+                "Regenerate the full decomposition. The composed top module plus all "
+                "reference sub-modules must pass the original system testbench before "
+                "any candidate repair can start.\n\n"
+                f"Failure feedback:\n```\n{ref_failure_feedback}\n```"
+            )
 
-    ref_ok = ref_total > 0 and ref_passes == ref_total
-    if not ref_ok:
-        logger.warning("C4tl: reference composition failed (%d/%d). Proceeding anyway.",
-                       ref_passes, ref_total)
+        try:
+            decomp = decompose(
+                problem_desc, augmented_specs, testbench,
+                model=model, client=client, top_module_name=top_name,
+                max_retries=1,
+            )
+            total_calls += 1
+        except Exception as e:
+            ref_failure_feedback = f"decomposition generation failed: {e}"
+            logger.warning(
+                "C4tl decomposition attempt %d/%d failed before validation: %s",
+                decomp_attempt + 1, max_decomp_attempts, e,
+            )
+            continue
+
+        ref_modules = {top_name: decomp.top_source}
+        ref_modules.update(decomp.reference_modules)
+        ref_sim = simulate(ref_modules, testbench, timeout=60, data_dir=data_dir)
+        ref_passes, ref_total = 0, 0
+        if ref_sim.compiled:
+            ref_passes, ref_total = _count_tb_passes(ref_sim.stdout)
+
+        ref_ok = ref_total > 0 and ref_passes == ref_total
+        golden_ref_detail = ""
+        if ref_ok and data_dir:
+            gp, gt, golden_ref_detail = _simulate_golden(
+                ref_modules, testbench, data_dir, timeout=60,
+            )
+            if gt > 0:
+                ref_passes, ref_total = gp, gt
+                ref_ok = gp == gt
+
+        if ref_ok:
+            logger.info(
+                "C4tl: reference composition validated on attempt %d/%d (%d/%d).",
+                decomp_attempt + 1, max_decomp_attempts, ref_passes, ref_total,
+            )
+            break
+
+        if ref_sim.compiled:
+            ref_failure_feedback = (
+                f"reference score: {ref_passes}/{ref_total}\n"
+                f"stdout:\n{_shorten(ref_sim.stdout, 1200)}\n"
+                f"stderr:\n{_shorten(ref_sim.stderr, 800)}"
+            )
+            if golden_ref_detail:
+                ref_failure_feedback += (
+                    "\n\ngolden comparison:\n"
+                    f"{_shorten(golden_ref_detail, 1600)}"
+                )
+        else:
+            ref_failure_feedback = (
+                f"reference compile failed:\n"
+                f"{_shorten(ref_sim.compile_error or ref_sim.stderr, 1200)}"
+            )
+        logger.warning(
+            "C4tl: reference composition failed on decomposition attempt %d/%d (%d/%d). Retrying.",
+            decomp_attempt + 1, max_decomp_attempts, ref_passes, ref_total,
+        )
+    else:
+        ref_ok = False
+
+    if decomp is None or not ref_ok:
+        logger.warning(
+            "C4tl: aborting because no valid reference decomposition was found (%d/%d).",
+            ref_passes, ref_total,
+        )
+        artifacts = {}
+        decomp_modules = []
+        if decomp is not None:
+            ref_sources = dict(decomp.reference_modules)
+            ref_sources[top_name] = decomp.top_source
+            artifacts = {
+                "_sources": ref_sources,
+                "_decomp_descriptions": {s.name: s.description for s in decomp.sub_modules},
+                "_top_source": decomp.top_source,
+            }
+            decomp_modules = decomp.module_names
+        return {
+            "condition": "C4tl", "llm_calls": total_calls,
+            "best_passes": ref_passes, "total_tests": ref_total,
+            "solved": False, "decomp_modules": decomp_modules,
+            "ref_passes": ref_passes, "ref_total": ref_total,
+            "golden_correct": 0, "golden_total": 0,
+            "module_solve_rounds": {},
+            "error": "reference decomposition failed original system testbench",
+            **artifacts,
+        }
 
     # Step 2: Generate initial candidates via study prompt
     modules = {top_name: decomp.top_source}
@@ -1251,12 +1390,20 @@ def run_C4tl(
                     with open(tb_file, "w") as f:
                         f.write(testbench)
                     srcs = [os.path.join(gtmp, f) for f in os.listdir(gtmp) if f.endswith(".v")]
-                    import subprocess
-                    subprocess.run(["iverilog", "-g2012", "-o", os.path.join(gtmp, "sim.vvp")] + srcs,
-                                   capture_output=True, text=True, encoding="utf-8", errors="replace")
-                    subprocess.run(["vvp", os.path.join(gtmp, "sim.vvp")],
-                                   capture_output=True, text=True, cwd=gtmp, timeout=120,
-                                   encoding="utf-8", errors="replace")
+                    iverilog = find_tool(["iverilog"]) or "iverilog"
+                    vvp = find_tool(["vvp"]) or "vvp"
+                    _, _, _, c_timeout = _run(
+                        [iverilog, "-g2012", "-o", os.path.join(gtmp, "sim.vvp")] + srcs,
+                        gtmp,
+                        120,
+                    )
+                    if c_timeout:
+                        golden_correct, golden_total_count = 0, 0
+                        continue
+                    _, _, _, r_timeout = _run([vvp, os.path.join(gtmp, "sim.vvp")], gtmp, 120)
+                    if r_timeout:
+                        golden_correct, golden_total_count = 0, 0
+                        continue
 
                     gp, gt, gdetail = _run_golden_comparison(data_dir, gtmp)
                     golden_correct, golden_total_count = gp, gt

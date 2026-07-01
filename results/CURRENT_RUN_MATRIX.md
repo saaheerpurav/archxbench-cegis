@@ -4,6 +4,8 @@ Date: 2026-07-01
 
 This file is the repo-local source of truth for what has actually been run. It exists to avoid confusing "not present in one folder" with "not run."
 
+Replay audit: see `results/VERIFICATION_AUDIT_2026_07_01.md`.
+
 ## Complete Baselines
 
 | Condition | Models | Seeds | Designs | Status |
@@ -65,7 +67,7 @@ These are the only real run gaps, assuming Supreet's unpublished artifacts are t
 | `conv_3d` | L6 | C2g/C4tl seed-42 debug failed `0/0`; baselines failed | optional new-method attempt |
 | `quantized_matmul` | L6 | C2g/C4tl seed-42 debug failed `0/0`; baselines failed | optional new-method attempt |
 | `systolic_gemm` | L5 | baselines and C4tl attempts failed; testbench has weak/no machine-readable verdict | only rerun after adding a reliable checker |
-| `dct_idct_8pt_pipelined` | L5 | seed-42 C4tl solved in older L5/L6 run; C2g failed | run/import 3-seed C4tl only if needed for matched L5 table |
+| `dct_idct_8pt_pipelined` | L5 | old seed-42 C4tl row was a false native-TB pass (`golden_total: 0`); repaired harness/checker scores that artifact `0/16` golden-correct. Fresh C4tl seed 42 without golden-reference validation failed after repairs (`0/16`). C4tl with decomposition retry + golden-reference validation also failed: no valid reference decomposition after 3 attempts (`experiments_dct_retry3/`, result `0/1`). | repaired locally on 2026-07-01: bounded TB waits, no golden overwrite, DCT+IDCT golden comparison, and C4tl now rejects invalid reference scaffolds. Do not claim DCT solved; no more DCT seeds unless introducing a stronger decomposition method. |
 
 ## Do Not Treat As Missing
 

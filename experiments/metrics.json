@@ -815,5 +815,29 @@
     "wall_seconds": 1639.5,
     "total_input_tokens": 0,
     "total_output_tokens": 0
+  },
+  "dct_idct_8pt_pipelined__C4tl__gpt-5.5__42": {
+    "condition": "C4tl",
+    "llm_calls": 29,
+    "best_passes": 0,
+    "total_tests": 0,
+    "solved": false,
+    "decomp_modules": [
+      "dct1d_8_coeff_rom",
+      "dct1d_8_mac",
+      "dct1d_8_round_shift",
+      "dct1d_8_saturate"
+    ],
+    "ref_passes": 0,
+    "ref_total": 1,
+    "golden_correct": 0,
+    "golden_total": 0,
+    "module_solve_rounds": {},
+    "design": "dct_idct_8pt_pipelined",
+    "model": "gpt-5.5",
+    "seed": 42,
+    "wall_seconds": 2336.3,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0
   }
 }

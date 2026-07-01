@@ -1,0 +1,9 @@
+{
+  "top_source_file": "verilog/dct1d_8_coeff_rom.v",
+  "sub_modules": {
+    "dct1d_8_coeff_rom": "Combinational Q14 normalized DCT coefficient lookup with transposed access for IDCT mode.",
+    "dct1d_8_mac": "Combinational 8-input signed multiply-accumulate datapath.",
+    "dct1d_8_round_shift": "Combinational signed fixed-point rounding and arithmetic right shift from Q14 to integer output scale.",
+    "dct1d_8_saturate": "Combinational signed saturation from accumulator width to OUT_W output width."
+  }
+}

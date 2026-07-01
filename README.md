@@ -210,6 +210,7 @@ These runs are included for transparency but are not main paper claims:
 | `newton_raphson_polynomial` | C4m | 456 | failed, `86/100`; rerun in debug folder scored `17/100` | `experiments/newton_raphson_polynomial/C4m/`, `experiments_c4m_debug/` |
 | `newton_raphson_polynomial` | C4a | 456 | failed, `97/100` | `experiments_c4a_debug/` |
 | `band_pass_fir` | C4i/C4tl | 42 | failed; C4tl reached `3/1001` | `experiments_bandpass_debug/` |
+| `dct_idct_8pt_pipelined` | C4tl | 42/123 | old seed-42 native PASS is false under repaired golden checker (`0/16`); repaired seed-42 rerun failed; decomposition-retry + golden-reference validation still failed to find a valid reference scaffold after 3 attempts | do not claim solved |
 | `dct_idct_8pt_pipelined` | C4a | 42 | failed, `0/1` | `experiments_c4a_debug/` |
 | `fft_16pt_iterative` | C4a | 42 | failed, `30/33` | `experiments_c4a_debug/` |
 | `quantized_matmul` | C2g/C4tl | 42 | both failed, `0/0` | `experiments_quantized_debug/` |

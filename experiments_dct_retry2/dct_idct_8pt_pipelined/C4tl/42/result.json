@@ -1,0 +1,9 @@
+{
+  "error": "name '_trunc' is not defined",
+  "design": "dct_idct_8pt_pipelined",
+  "model": "gpt-5.5",
+  "seed": 42,
+  "wall_seconds": 130.8,
+  "total_input_tokens": 0,
+  "total_output_tokens": 0
+}
