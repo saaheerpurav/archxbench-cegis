@@ -15,7 +15,7 @@ Autonomous Verilog RTL generation using Counter-Example Guided Inductive Synthes
 
 ## Results
 
-Current canonical C4i results use GPT-5.5 with seeds `42`, `123`, and `456` on the matched comparison set. Broader multi-model sweeps remain baseline/context rather than the main C4i claim.
+Current canonical C4i results use GPT-5.5 with seeds `42`, `123`, and `456` on the matched comparison set. Broader multi-model sweeps and exploratory C4m/C4a runs remain baseline/context rather than the main C4i claim.
 
 ### Legacy Seed-42 C4i/C4tl Rows (not canonical)
 
@@ -43,7 +43,10 @@ See [`results/C4I_MATCHED_RESULTS.md`](results/C4I_MATCHED_RESULTS.md) for per-s
 | `gauss_siedel` | L3 | 3/3 solved, all `50/50` | 0/3 solved, all `45/50` | official self-checking testbench |
 | `newton_raphson_sqrt` | L3 | 3/3 solved, all `50/50` | 0/3 solved for GPT-5.5 | official self-checking testbench |
 | `fp_adder` | L3 | 3/3 solved, all `36/36` | 1/3 solved on matched seeds | official self-checking testbench |
+| `gradient_descent` | L3 | 3/3 solved, all `50/50` | 0/3 solved, no passing simulations | official self-checking testbench |
 | `harris_corner_detection` | L5 | 3/3 solved, all `16384/16384` | seed 42 solved, slower | external golden JSON |
+
+Negative matched result: `newton_raphson_polynomial` remains unsolved. C4i scores `17/100`, `17/100`, and `89/100` across seeds `42`, `123`, and `456`; the best monolithic C2g near-miss is `97/100`.
 
 `golden_correct/golden_total = 0/0` for the L3 rows because those benchmarks do not have separate golden-output JSON files. They are still verified by the official self-checking testbenches, which contain embedded expected outputs or compute expected values internally.
 
@@ -99,6 +102,10 @@ archxbench-cegis/
 â”‚   â”œâ”€â”€ C4i/                        # Investigative CEGIS (paper's main contribution)
 â”‚   â”œâ”€â”€ C4tl/                       # Trace-Lifted CEGIS (paper's main contribution)
 â”‚   â””â”€â”€ logs/
+â”œâ”€â”€ experiments_c4a_debug/          # Exploratory adaptive CEGIS runs (not main claims)
+â”œâ”€â”€ experiments_c4m_debug/          # Exploratory memory-guided CEGIS runs (not main claims)
+â”œâ”€â”€ experiments_conv3d_debug/       # Failed conv_3d C2g/C4tl seed-42 debug run
+â”œâ”€â”€ experiments_quantized_debug/    # Failed quantized_matmul C2g/C4tl seed-42 debug run
 â”œâ”€â”€ results/                        # Metrics and summary tables
 â”‚   â”œâ”€â”€ EXPERIMENT_RESULTS.md
 â”‚   â”œâ”€â”€ C4I_MATCHED_RESULTS.md
@@ -172,6 +179,21 @@ python -m cegis.tdes.fpga.autonomous.run_aaai \
 
 Set `OPENAI_API_KEY` and `OPENAI_BASE_URL` for Bedrock Mantle (serves both OpenAI and Anthropic models).
 For direct API access, set `OPENAI_API_KEY` for OpenAI models or `ANTHROPIC_API_KEY` for Anthropic models.
+
+## Exploratory / Negative Runs
+
+These runs are included for transparency but are not main paper claims:
+
+| Design | Condition | Seed | Result | Folder |
+|--------|-----------|------|--------|--------|
+| `newton_raphson_polynomial` | C4m | 456 | failed, `86/100`; rerun in debug folder scored `17/100` | `experiments/newton_raphson_polynomial/C4m/`, `experiments_c4m_debug/` |
+| `newton_raphson_polynomial` | C4a | 456 | failed, `97/100` | `experiments_c4a_debug/` |
+| `dct_idct_8pt_pipelined` | C4a | 42 | failed, `0/1` | `experiments_c4a_debug/` |
+| `fft_16pt_iterative` | C4a | 42 | failed, `30/33` | `experiments_c4a_debug/` |
+| `quantized_matmul` | C2g/C4tl | 42 | both failed, `0/0` | `experiments_quantized_debug/` |
+| `conv_3d` | C2g/C4tl | 42 | both failed, `0/0` | `experiments_conv3d_debug/` |
+
+C4a/C4m are exploratory prototypes. Current evidence does not support using them as main methods over C4i/C4tl.
 
 For local Codex CLI runs using an authenticated ChatGPT session instead of API keys:
 

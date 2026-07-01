@@ -1,6 +1,6 @@
 # C4i Matched-Seed Results
 
-Date: 2026-06-30
+Date: 2026-07-01
 
 ## Summary
 
@@ -20,7 +20,9 @@ All C4i rows use:
 | `gauss_siedel` | L3 | 3/3 solved, all `50/50` | 0/3 solved, all `45/50` | official self-checking testbench |
 | `newton_raphson_sqrt` | L3 | 3/3 solved, all `50/50` | 0/3 solved for GPT-5.5 | official self-checking testbench |
 | `fp_adder` | L3 | 3/3 solved, all `36/36` | 1/3 solved on seeds `42,123,456` | official self-checking testbench |
+| `gradient_descent` | L3 | 3/3 solved, all `50/50` | 0/3 solved, no passing simulations | official self-checking testbench |
 | `harris_corner_detection` | L5 | 3/3 solved, all `16384/16384` | seed `42` solved, slower | external golden JSON |
+| `newton_raphson_polynomial` | L3 | 0/3 solved; best `89/100` | 0/3 solved; best `97/100` | official self-checking testbench |
 
 ## C4i Per-Seed Details
 
@@ -41,6 +43,12 @@ All C4i rows use:
 | `harris_corner_detection` | 42 | yes | `16384/16384` | `16384/16384` | 7 | 437.2 |
 | `harris_corner_detection` | 123 | yes | `16384/16384` | `16384/16384` | 10 | 566.9 |
 | `harris_corner_detection` | 456 | yes | `16384/16384` | `16384/16384` | 15 | 685.7 |
+| `gradient_descent` | 42 | yes | `50/50` | `0/0` | 22 | 2603.5 |
+| `gradient_descent` | 123 | yes | `50/50` | `0/0` | 4 | 291.6 |
+| `gradient_descent` | 456 | yes | `50/50` | `0/0` | 5 | 361.7 |
+| `newton_raphson_polynomial` | 42 | no | `17/100` | `0/0` | 29 | 1934.9 |
+| `newton_raphson_polynomial` | 123 | no | `17/100` | `0/0` | 26 | 1411.8 |
+| `newton_raphson_polynomial` | 456 | no | `89/100` | `0/0` | 29 | 1479.9 |
 
 `golden=0/0` means the benchmark does not provide a separate golden-output JSON for that design. Those rows are still verified by the official self-checking testbench, which contains embedded expected outputs or computes the expected values internally.
 
@@ -53,6 +61,8 @@ All C4i rows use:
 | `fp_adder` | `experiments/fp_adder/C4i/42/` | `experiments/fp_adder/C4i/123/` | `experiments/fp_adder/C4i/456/` |
 | `newton_raphson_sqrt` | `experiments/newton_raphson_sqrt/C4i/42/` | `experiments/newton_raphson_sqrt/C4i/123/` | `experiments/newton_raphson_sqrt/C4i/456/` |
 | `harris_corner_detection` | `experiments/harris_corner_detection/C4i/42/` | `experiments/harris_corner_detection/C4i/123/` | `experiments/harris_corner_detection/C4i/456/` |
+| `gradient_descent` | `experiments/gradient_descent/C4i/42/` | `experiments/gradient_descent/C4i/123/` | `experiments/gradient_descent/C4i/456/` |
+| `newton_raphson_polynomial` | `experiments/newton_raphson_polynomial/C4i/42/` | `experiments/newton_raphson_polynomial/C4i/123/` | `experiments/newton_raphson_polynomial/C4i/456/` |
 
 ## Reproduction Command
 
@@ -72,6 +82,18 @@ python -m cegis.tdes.fpga.autonomous.run_aaai `
   --parallel 0
 ```
 
+The later L3 extension was run with:
+
+```powershell
+python -m cegis.tdes.fpga.autonomous.run_aaai `
+  --conditions C4i `
+  --models gpt-5.5 `
+  --seeds 42 123 456 `
+  --designs gradient_descent newton_raphson_polynomial `
+  --output experiments `
+  --parallel 0
+```
+
 ## Interpretation
 
 The strongest result is not just that C4i solves isolated cells. It solves multiple matched-seed cells where monolithic GPT-5.5 CEGIS reaches the round budget and stagnates:
@@ -80,5 +102,8 @@ The strongest result is not just that C4i solves isolated cells. It solves multi
 - `gauss_siedel`: C4i `3/3`, C2 `0/3`.
 - `newton_raphson_sqrt`: C4i `3/3`, C2 `0/3` for GPT-5.5.
 - `fp_adder`: C4i `3/3`, C2 `1/3` on the matched seeds.
+- `gradient_descent`: C4i `3/3`, C2g `0/3`.
+
+`newton_raphson_polynomial` remains unsolved. C4i improved over zero-shot but did not beat the monolithic C2g near-miss (`97/100`), so it is recorded as a negative result rather than a main claim.
 
 This supports the main mechanism claim: decomposition plus per-module investigative repair can escape monolithic repair failures on RTL synthesis tasks.

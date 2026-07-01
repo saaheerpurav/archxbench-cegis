@@ -14,7 +14,7 @@
 
 ## Current Canonical C4i Matched Results
 
-Updated: 2026-06-30.
+Updated: 2026-07-01.
 
 The table below is the current main-method comparison. It uses matched GPT-5.5 seeds `42`, `123`, and `456` for C4i against the existing monolithic C2/C2g GPT-5.5 baselines. Detailed per-seed artifacts are documented in [`C4I_MATCHED_RESULTS.md`](C4I_MATCHED_RESULTS.md).
 
@@ -24,7 +24,9 @@ The table below is the current main-method comparison. It uses matched GPT-5.5 s
 | `gauss_siedel` | L3 | 3/3 solved, all `50/50` | 0/3 solved, all `45/50` | official self-checking testbench |
 | `newton_raphson_sqrt` | L3 | 3/3 solved, all `50/50` | 0/3 solved for GPT-5.5 | official self-checking testbench |
 | `fp_adder` | L3 | 3/3 solved, all `36/36` | 1/3 solved on matched seeds | official self-checking testbench |
+| `gradient_descent` | L3 | 3/3 solved, all `50/50` | 0/3 solved, no passing simulations | official self-checking testbench |
 | `harris_corner_detection` | L5 | 3/3 solved, all `16384/16384` | seed `42` solved, but slower | external golden JSON |
+| `newton_raphson_polynomial` | L3 | 0/3 solved; best `89/100` | 0/3 solved; best `97/100` | official self-checking testbench |
 
 ### C4i Per-Seed Metrics
 
@@ -45,6 +47,12 @@ The table below is the current main-method comparison. It uses matched GPT-5.5 s
 | `harris_corner_detection` | 42 | yes | `16384/16384` | `16384/16384` | 7 | 437.2 |
 | `harris_corner_detection` | 123 | yes | `16384/16384` | `16384/16384` | 10 | 566.9 |
 | `harris_corner_detection` | 456 | yes | `16384/16384` | `16384/16384` | 15 | 685.7 |
+| `gradient_descent` | 42 | yes | `50/50` | `0/0` | 22 | 2603.5 |
+| `gradient_descent` | 123 | yes | `50/50` | `0/0` | 4 | 291.6 |
+| `gradient_descent` | 456 | yes | `50/50` | `0/0` | 5 | 361.7 |
+| `newton_raphson_polynomial` | 42 | no | `17/100` | `0/0` | 29 | 1934.9 |
+| `newton_raphson_polynomial` | 123 | no | `17/100` | `0/0` | 26 | 1411.8 |
+| `newton_raphson_polynomial` | 456 | no | `89/100` | `0/0` | 29 | 1479.9 |
 
 Rows with `golden=0/0` are official self-checking-testbench results. The L3 testbenches contain embedded expected outputs or compute expected values internally. `harris_corner_detection` is external-golden verified.
 
@@ -237,6 +245,25 @@ Rows with `golden=0/0` are official self-checking-testbench results. The L3 test
 
 6. **External golden evidence**: `harris_corner_detection` is solved by C4i on all three GPT-5.5 seeds with `16384/16384` external golden matches. C2g also solves seed 42, but C4i is faster on the logged seed-42 comparison.
 
+7. **Latest L3 extension**: `gradient_descent` is now solved by C4i on all three GPT-5.5 seeds (`50/50` each) while C2g has no passing simulation on the same design. `newton_raphson_polynomial` remains unsolved; C4i reaches `89/100`, while C2g reaches `97/100`.
+
+---
+
+## Exploratory / Negative Runs
+
+The following runs are logged for transparency but are not main paper claims:
+
+| Design | Condition | Seed | Result | Folder |
+|--------|-----------|------|--------|--------|
+| `newton_raphson_polynomial` | C4m | 456 | failed, `86/100`; rerun in debug folder scored `17/100` | `experiments/newton_raphson_polynomial/C4m/`, `experiments_c4m_debug/` |
+| `newton_raphson_polynomial` | C4a | 456 | failed, `97/100` | `experiments_c4a_debug/` |
+| `dct_idct_8pt_pipelined` | C4a | 42 | failed, `0/1` | `experiments_c4a_debug/` |
+| `fft_16pt_iterative` | C4a | 42 | failed, `30/33` | `experiments_c4a_debug/` |
+| `quantized_matmul` | C2g/C4tl | 42 | both failed, `0/0` | `experiments_quantized_debug/` |
+| `conv_3d` | C2g/C4tl | 42 | both failed, `0/0` | `experiments_conv3d_debug/` |
+
+C4a/C4m were exploratory attempts to add shared memory and adaptive top-level repair. They did not outperform the established C4i/C4tl results and should not be treated as main methods.
+
 ---
 
 ## Experiment Timeline
@@ -253,4 +280,4 @@ Rows with `golden=0/0` are official self-checking-testbench results. The L3 test
 
 ---
 
-*Document updated: 2026-06-30. C4i matched-seed results added; older broad C1/C2g sweep retained as baseline context.*
+*Document updated: 2026-07-01. C4i L3 extension and exploratory negative runs added; older broad C1/C2g sweep retained as baseline context.*
